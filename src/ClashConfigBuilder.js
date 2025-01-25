@@ -162,9 +162,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     auth: proxy.auth,
                     'skip-cert-verify': proxy.skipCertVerify,
                     sni: proxy.sni,
+                    udp: proxy.udp,
                     'port-range': proxy.portRange,
                     'jump-policy': proxy.portRange ? 'random' : undefined,
-                    'jump-interval': proxy.portRange ? 60 : undefined,
+                    'jump-interval': proxy.portRange ? 180 : undefined,
                 };
 			case 'trojan':
 				return {
