@@ -148,7 +148,7 @@ export class ProxyParser {
         parse(url) {
           const { addressPart, params, name } = parseUrlParams(url);
           const [uuid, serverInfo] = addressPart.split('@');
-          const { host, port } = parseServerInfo(serverInfo);
+          const { host, port, portRange } = this.parseServerInfo(serverInfo);
       
           const tls = {
             enabled: true,
@@ -162,8 +162,6 @@ export class ProxyParser {
             obfs.type = params.obfs;
             obfs.password = params['obfs-password'];
           };
-          // 新增：解析端口范围
-          const portRange = params['port-range'] || '';
 		
           return {
             tag: name,
@@ -174,11 +172,11 @@ export class ProxyParser {
             tls: tls,
             obfs: obfs,
             up_mbps: 100,
-            down_mbps: 100,
-            // 新增：添加端口范围和sni参数
-            'port-range': portRange,
-            sni: params.sni
+            down_mbps: 100
           };
+		
+	  if (portRange) {
+            result.port_range = portRange;
         }
       }
 
