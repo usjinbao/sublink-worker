@@ -97,17 +97,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
     }
 
     convertToClashProxy(proxy) {
-    let portRange = null;
-    // 检查节点链接中是否包含端口范围
-    if (proxy.server_port.includes('-')) {
-        portRange = proxy.server_port;
-        // 提取主端口，假设格式为 "主端口-范围端口"
-        proxy.server_port = parseInt(proxy.server_port.split('-')[0]);
-    }
-
+    let result;
     switch (proxy.type) {
         case 'shadowsocks':
-            return {
+            result = {
                 name: proxy.tag,
                 type: 'ss',
                 server: proxy.server,
@@ -115,8 +108,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 cipher: proxy.method,
                 password: proxy.password
             };
+            break;
         case 'vmess':
-            return {
+            result = {
                 name: proxy.tag,
                 type: proxy.type,
                 server: proxy.server,
@@ -132,8 +126,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     headers: proxy.transport.headers
                 } : undefined
             };
+            break;
         case 'vless':
-            return {
+            result = {
                 name: proxy.tag,
                 type: proxy.type,
                 server: proxy.server,
@@ -147,7 +142,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 'ws-opts': proxy.transport?.type === 'ws' ? {
                     path: proxy.transport.path,
                     headers: proxy.transport.headers
-                } : undefined,
+                }: undefined,
                 'reality-opts': proxy.tls.reality?.enabled ? {
                     'public-key': proxy.tls.reality.public_key,
                     'short-id': proxy.tls.reality.short_id,
@@ -156,12 +151,13 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     'grpc-mode': 'gun',
                     'grpc-service-name': proxy.transport.service_name,
                 } : undefined,
-                tfo: proxy.tcp_fast_open,
+                tfo : proxy.tcp_fast_open,
                 'skip-cert-verify': proxy.tls.insecure,
                 'flow': proxy.flow ?? undefined,
             };
+            break;
         case 'hysteria2':
-            const result = {
+            result = {
                 name: proxy.tag,
                 type: proxy.type,
                 server: proxy.server,
@@ -172,15 +168,15 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 auth: proxy.password,
                 'skip-cert-verify': proxy.tls.insecure,
             };
-            // 如果有端口范围，添加相关参数
-            if (portRange) {
-                result['port-range'] = portRange;
+            // 检查是否有端口范围
+            if (proxy.port_range) {
+                result['port-range'] = proxy.port_range;
                 result['jump-policy'] = 'random';
                 result['jump-interval'] = 120;
             }
-            return result;
+            break;
         case 'trojan':
-            return {
+            result = {
                 name: proxy.tag,
                 type: proxy.type,
                 server: proxy.server,
@@ -194,7 +190,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 'ws-opts': proxy.transport?.type === 'ws' ? {
                     path: proxy.transport.path,
                     headers: proxy.transport.headers
-                } : undefined,
+                }: undefined,
                 'reality-opts': proxy.tls.reality?.enabled ? {
                     'public-key': proxy.tls.reality.public_key,
                     'short-id': proxy.tls.reality.short_id,
@@ -203,12 +199,13 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     'grpc-mode': 'gun',
                     'grpc-service-name': proxy.transport.service_name,
                 } : undefined,
-                tfo: proxy.tcp_fast_open,
+                tfo : proxy.tcp_fast_open,
                 'skip-cert-verify': proxy.tls.insecure,
                 'flow': proxy.flow ?? undefined,
             };
+            break;
         case 'tuic':
-            return {
+            result = {
                 name: proxy.tag,
                 type: proxy.type,
                 server: proxy.server,
@@ -222,8 +219,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 'sni': proxy.tls.server_name,
                 'udp-relay-mode': 'native',
             };
-            default:
-                return proxy; // Return as-is if no specific conversion is defined
+            break;
+        default:
+            result = proxy; // Return as-is if no specific conversion is defined
         }
     }
 }
