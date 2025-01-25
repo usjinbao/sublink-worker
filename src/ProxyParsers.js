@@ -145,11 +145,20 @@ export class ProxyParser {
       }
       
       class Hysteria2Parser {
+    /**
+     * 解析 Hysteria2 代理 URL
+     * @param {string} url - 待解析的 URL
+     * @returns {Object} 解析后的代理配置对象
+     */
     parse(url) {
+        // 调用 parseUrlParams 函数解析 URL，获取地址部分、参数和名称
         const { addressPart, params, name } = parseUrlParams(url);
+        // 将地址部分按 @ 符号分割，获取 UUID 和服务器信息
         const [uuid, serverInfo] = addressPart.split('@');
+        // 调用 parseServerInfo 方法解析服务器信息，获取主机、端口和端口范围
         const { host, port, portRange } = this.parseServerInfo(serverInfo);
 
+        // 配置 TLS 信息
         const tls = {
             enabled: true,
             server_name: params.sni,
@@ -157,13 +166,14 @@ export class ProxyParser {
             alpn: ["h3"],
         };
 
+        // 配置混淆信息，如果 URL 参数中包含 obfs-password 则设置混淆类型和密码
         const obfs = {};
         if (params['obfs-password']) {
             obfs.type = params.obfs;
             obfs.password = params['obfs-password'];
         }
 
-        // 定义 result 变量
+        // 定义结果对象，包含基本的代理配置信息
         let result = {
             tag: name,
             type: "hysteria2",
@@ -176,7 +186,7 @@ export class ProxyParser {
             down_mbps: 100
         };
 
-        // 根据端口范围添加 port_range 属性
+        // 如果存在端口范围，则将其添加到结果对象中
         if (portRange) {
             result.port_range = portRange;
         }
@@ -184,22 +194,31 @@ export class ProxyParser {
         return result;
     }
 
-    // 定义 parseServerInfo 方法
+    /**
+     * 解析服务器信息，提取主机、端口和端口范围
+     * @param {string} serverInfo - 服务器信息字符串
+     * @returns {Object} 包含主机、端口和端口范围的对象
+     */
     parseServerInfo(serverInfo) {
+        // 将服务器信息按 : 符号分割成数组
         const parts = serverInfo.split(':');
+        // 主机为数组的第一个元素
         const host = parts[0];
         let port;
         let portRange;
 
         if (parts.length > 1) {
+            // 获取端口部分
             const portPart = parts[1];
+            // 查找端口范围分隔符 , 的位置
             const portRangeIndex = portPart.indexOf(',');
             if (portRangeIndex !== -1) {
-                // 存在端口范围
+                // 存在端口范围，提取端口并转换为整数
                 port = parseInt(portPart.substring(0, portRangeIndex));
+                // 提取端口范围
                 portRange = portPart.substring(portRangeIndex + 1);
             } else {
-                // 只有端口
+                // 只有端口，将其转换为整数
                 port = parseInt(portPart);
             }
         }
