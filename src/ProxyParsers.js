@@ -176,10 +176,10 @@ export class ProxyParser {
           };
 		
 	  if (portRange) {
-            result.port_range = portRange;
-        }
+            result.port_range = portRange
+        };
       }
-
+    }
       class TrojanParser {
 	      
         parse(url) {
