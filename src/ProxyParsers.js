@@ -145,25 +145,26 @@ export class ProxyParser {
       }
       
       class Hysteria2Parser {
-        parse(url) {
-          const { addressPart, params, name } = parseUrlParams(url);
-          const [uuid, serverInfo] = addressPart.split('@');
-          const { host, port, portRange } = this.parseServerInfo(serverInfo);
-      
-          const tls = {
+    parse(url) {
+        const { addressPart, params, name } = parseUrlParams(url);
+        const [uuid, serverInfo] = addressPart.split('@');
+        const { host, port, portRange } = this.parseServerInfo(serverInfo);
+
+        const tls = {
             enabled: true,
             server_name: params.sni,
             insecure: true,
             alpn: ["h3"],
-          };
+        };
 
-          const obfs = {};
-          if (params['obfs-password']) {
+        const obfs = {};
+        if (params['obfs-password']) {
             obfs.type = params.obfs;
             obfs.password = params['obfs-password'];
-          };
-		
-          return {
+        }
+
+        // 定义 result 变量
+        let result = {
             tag: name,
             type: "hysteria2",
             server: host,
@@ -173,13 +174,40 @@ export class ProxyParser {
             obfs: obfs,
             up_mbps: 100,
             down_mbps: 100
-          };
-		
-	  if (portRange) {
-            result.port_range = portRange
         };
-      }
+
+        // 根据端口范围添加 port_range 属性
+        if (portRange) {
+            result.port_range = portRange;
+        }
+
+        return result;
     }
+
+    // 定义 parseServerInfo 方法
+    parseServerInfo(serverInfo) {
+        const parts = serverInfo.split(':');
+        const host = parts[0];
+        let port;
+        let portRange;
+
+        if (parts.length > 1) {
+            const portPart = parts[1];
+            const portRangeIndex = portPart.indexOf(',');
+            if (portRangeIndex !== -1) {
+                // 存在端口范围
+                port = parseInt(portPart.substring(0, portRangeIndex));
+                portRange = portPart.substring(portRangeIndex + 1);
+            } else {
+                // 只有端口
+                port = parseInt(portPart);
+            }
+        }
+
+        return { host, port, portRange };
+    }
+}
+
       class TrojanParser {
 	      
         parse(url) {
