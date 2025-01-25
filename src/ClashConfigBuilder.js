@@ -158,11 +158,13 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     type: proxy.type,
                     server: proxy.server,
                     port: proxy.server_port,
-                    obfs: proxy.obfs.type,
-                    'obfs-password': proxy.obfs.password,
                     password: proxy.password,
-                    auth: proxy.password,
-                    'skip-cert-verify': proxy.tls.insecure,
+                    auth: proxy.auth,
+                    'skip-cert-verify': proxy.skipCertVerify,
+                    sni: proxy.sni,
+                    'port-range': proxy.portRange,
+                    'jump-policy': proxy.portRange ? 'random' : undefined,
+                    'jump-interval': proxy.portRange ? 60 : undefined,
                 };
 			case 'trojan':
 				return {
