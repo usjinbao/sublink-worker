@@ -144,8 +144,7 @@ export class ProxyParser {
         }
       }
       
-      class Hysteria2Parser {
-        class Hysteria2Parser {
+    class Hysteria2Parser {
           parse(url) {
             const { addressPart, params, name } = parseUrlParams(url);
             const [uuid, serverInfo] = addressPart.split('@');
