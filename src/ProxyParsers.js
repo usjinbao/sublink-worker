@@ -186,7 +186,8 @@ export class ProxyParser {
               tls: tls,
               obfs: obfs,
               up_mbps: 100,
-              down_mbps: 100
+              down_mbps: 300,
+              udp: true 
             };
           }
         }
