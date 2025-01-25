@@ -181,6 +181,7 @@ export class ProxyParser {
       }
 
       class TrojanParser {
+	      
         parse(url) {
           const { addressPart, params, name } = parseUrlParams(url);
           const [password, serverInfo] = addressPart.split('@');
