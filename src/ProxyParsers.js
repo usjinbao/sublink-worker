@@ -162,7 +162,9 @@ export class ProxyParser {
             obfs.type = params.obfs;
             obfs.password = params['obfs-password'];
           };
-      
+          // 新增：解析端口范围
+          const portRange = params['port-range'] || '';
+		
           return {
             tag: name,
             type: "hysteria2",
@@ -172,7 +174,9 @@ export class ProxyParser {
             tls: tls,
             obfs: obfs,
             up_mbps: 100,
-            down_mbps: 100
+            down_mbps: 100，
+            port-range: portRange，
+            sni: params.sni
           };
         }
       }
