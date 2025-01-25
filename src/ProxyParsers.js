@@ -174,8 +174,8 @@ export class ProxyParser {
             tls: tls,
             obfs: obfs,
             up_mbps: 100,
-            down_mbps: 100，
-            port-range: portRange，
+            down_mbps: 100,
+            port-range: portRange,
             sni: params.sni
           };
         }
