@@ -175,7 +175,8 @@ export class ProxyParser {
             obfs: obfs,
             up_mbps: 100,
             down_mbps: 100,
-            port_range: portRange,
+            // 新增：添加端口范围和sni参数
+            'port-range': portRange,
             sni: params.sni
           };
         }
