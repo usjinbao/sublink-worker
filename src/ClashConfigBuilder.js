@@ -33,17 +33,36 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         }
 
         const proxyList = this.config.proxies.map(proxy => proxy.name);
-        
-        this.config['proxy-groups'].push({
-            name: '⚡ 自动选择',
-            type: 'url-test',
-            proxies: DeepCopy(proxyList),
-            url: 'https://www.gstatic.com/generate_204',
-            interval: 300,
-            lazy: false
-        });
 
-        proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择');
+         // 添加负载均衡组
+    this.config['proxy-groups'].push({
+        name: '⚖️ 负载均衡-顺序',
+        type: 'load-balance',
+        strategy: 'round-robin',
+        proxies: DeepCopy(proxyList),
+        url: 'http://www.google.com/generate_204',
+        interval: 300
+    });
+
+    this.config['proxy-groups'].push({
+        name: '⚖️ 负载均衡-随机',
+        type: 'load-balance',
+        strategy: 'consistent-hashing',
+        proxies: DeepCopy(proxyList),
+        url: 'http://www.google.com/generate_204',
+        interval: 300
+    });
+
+    this.config['proxy-groups'].push({
+        name: '⚡ 自动选择',
+        type: 'url-test',
+        proxies: DeepCopy(proxyList),
+        url: 'https://www.gstatic.com/generate_204',
+        interval: 300,
+        lazy: false
+    });
+
+        proxyList.unshift('⚖️ 负载均衡-顺序', '- ⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择', );
         outbounds.unshift('🚀 节点选择');
         
         outbounds.forEach(outbound => {
