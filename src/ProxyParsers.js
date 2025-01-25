@@ -144,20 +144,21 @@ export class ProxyParser {
         }
       }
       
-    class Hysteria2Parser {
-          parse(url) {
-            const { addressPart, params, name } = parseUrlParams(url);
-            const [uuid, serverInfo] = addressPart.split('@');
-            
-            // 解析服务器信息，包括可能的端口范围
-            let host, port, portRange;
-            if (serverInfo.includes(',')) {
-              const [serverPort, portRangePart] = serverInfo.split(',');
-              [host, port] = serverPort.split(':');
-              portRange = portRangePart;
-            } else {
-              [host, port] = serverInfo.split(':');
-            }
+      class Hysteria2Parser {
+        parse(url) {
+          const { addressPart, params, name } = parseUrlParams(url);
+          const [uuid, serverInfo] = addressPart.split('@');
+          
+          // 修改端口范围解析逻辑
+          let host, port, portRange;
+          if (serverInfo.includes(',')) {
+            const [serverPort, portRangePart] = serverInfo.split(',');
+            [host, port] = serverPort.split(':');
+            // 处理端口范围中可能包含的斜线
+            portRange = portRangePart.split('/')[0];
+          } else {
+            [host, port] = serverInfo.split(':');
+          }
         
             const tls = {
               enabled: true,
