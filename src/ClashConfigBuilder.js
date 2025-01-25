@@ -163,7 +163,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     password: proxy.password,
                     auth: proxy.password,
                     'skip-cert-verify': proxy.tls.insecure,
-                    'port_range': proxy['port_range'],
+                    'port-range': proxy['port-range'],
                      sni: proxy.sni
                 };
 			case 'trojan':
