@@ -145,35 +145,50 @@ export class ProxyParser {
       }
       
       class Hysteria2Parser {
-        parse(url) {
-          const { addressPart, params, name } = parseUrlParams(url);
-          const [uuid, serverInfo] = addressPart.split('@');
-          const { host, port } = parseServerInfo(serverInfo);
-      
-          const tls = {
-            enabled: true,
-            server_name: params.sni,
-            insecure: true,
-            alpn: ["h3"],
-          };
-
-          const obfs = {};
-          if (params['obfs-password']) {
-            obfs.type = params.obfs;
-            obfs.password = params['obfs-password'];
-          };
-      
-          return {
-            tag: name,
-            type: "hysteria2",
-            server: host,
-            server_port: port,
-            password: uuid,
-            tls: tls,
-            obfs: obfs,
-            up_mbps: 100,
-            down_mbps: 100
-          };
+        class Hysteria2Parser {
+          parse(url) {
+            const { addressPart, params, name } = parseUrlParams(url);
+            const [uuid, serverInfo] = addressPart.split('@');
+            
+            // 解析服务器信息，包括可能的端口范围
+            let host, port, portRange;
+            if (serverInfo.includes(',')) {
+              const [serverPort, portRangePart] = serverInfo.split(',');
+              [host, port] = serverPort.split(':');
+              portRange = portRangePart;
+            } else {
+              [host, port] = serverInfo.split(':');
+            }
+        
+            const tls = {
+              enabled: true,
+              server_name: params.sni,
+              insecure: true,
+              alpn: ["h3"],
+            };
+        
+            const obfs = {};
+            if (params['obfs-password']) {
+              obfs.type = params.obfs;
+              obfs.password = params['obfs-password'];
+            }
+        
+            return {
+              tag: name,
+              type: "hysteria2",
+              server: host,
+              server_port: parseInt(port),
+              password: uuid,
+              auth: uuid,
+              portRange: portRange,
+              sni: params.sni,
+              skipCertVerify: params.insecure === '1',
+              tls: tls,
+              obfs: obfs,
+              up_mbps: 100,
+              down_mbps: 100
+            };
+          }
         }
       }
 
