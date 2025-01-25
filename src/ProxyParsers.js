@@ -189,7 +189,6 @@ export class ProxyParser {
             };
           }
         }
-      }
 
       class TrojanParser {
         parse(url) {
