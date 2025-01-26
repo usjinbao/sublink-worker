@@ -33,36 +33,40 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         }
 
         const proxyList = this.config.proxies.map(proxy => proxy.name);
-
-         // 添加负载均衡组
-    this.config['proxy-groups'].push({
-        name: '⚖️ 负载均衡-顺序',
-        type: 'load-balance',
-        strategy: 'round-robin',
-        proxies: DeepCopy(proxyList),
-        url: 'http://www.google.com/generate_204',
-        interval: 300
-    });
-
-    this.config['proxy-groups'].push({
-        name: '⚖️ 负载均衡-随机',
-        type: 'load-balance',
-        strategy: 'consistent-hashing',
-        proxies: DeepCopy(proxyList),
-        url: 'http://www.google.com/generate_204',
-        interval: 300
-    });
-
-    this.config['proxy-groups'].push({
-        name: '⚡ 自动选择',
-        type: 'url-test',
-        proxies: DeepCopy(proxyList),
-        url: 'https://www.gstatic.com/generate_204',
-        interval: 300,
-        lazy: false
-    });
-
-        proxyList.unshift('⚖️ 负载均衡-顺序', '⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择');
+    
+        // 添加负载均衡组
+        this.config['proxy-groups'].push({
+            name: '⚖️ 负载均衡-顺序',
+            type: 'load-balance',
+            strategy: 'round-robin',
+            proxies: DeepCopy(proxyList),
+            url: 'http://www.google.com/generate_204',
+            interval: 300
+        });
+    
+        this.config['proxy-groups'].push({
+            name: '⚖️ 负载均衡-随机',
+            type: 'load-balance',
+            strategy: 'consistent-hashing',
+            proxies: DeepCopy(proxyList),
+            url: 'http://www.google.com/generate_204',
+            interval: 300
+        });
+    
+        this.config['proxy-groups'].push({
+            name: '⚡ 自动选择',
+            type: 'url-test',
+            proxies: DeepCopy(proxyList),
+            url: 'https://www.gstatic.com/generate_204',
+            interval: 300,
+            lazy: false
+        });
+    
+        // 为节点选择组创建完整代理列表（包含负载均衡）
+        const nodeSelectProxies = ['⚖️ 负载均衡-顺序', '⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        // 为其他选择组创建基础代理列表（不包含负载均衡）
+        const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+    
         outbounds.unshift('🚀 节点选择');
         
         outbounds.forEach(outbound => {
@@ -70,31 +74,31 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 this.config['proxy-groups'].push({
                     type: "select",
                     name: outbound,
-                    proxies: ['🚀 节点选择', ...proxyList]
+                    proxies: ['🚀 节点选择', ...basicProxies]
                 });
             } else {
                 this.config['proxy-groups'].unshift({
                     type: "select",
                     name: outbound,
-                    proxies: proxyList
+                    proxies: nodeSelectProxies
                 });
             }
         });
-
+    
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push({
                     type: "select",
                     name: rule.name,
-                    proxies: ['🚀 节点选择', ...proxyList]
+                    proxies: ['🚀 节点选择', ...basicProxies]
                 });
             });
         }
-
+    
         this.config['proxy-groups'].push({
             type: "select",
             name: "🐟 漏网之鱼",
-            proxies: ['🚀 节点选择', ...proxyList]
+            proxies: ['🚀 节点选择', ...basicProxies]
         });
     }
     formatConfig() {
