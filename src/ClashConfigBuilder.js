@@ -188,7 +188,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     udp: proxy.udp,
                     'port-range': proxy.portRange,
                     'jump-policy': proxy.portRange ? 'random' : undefined,
-                    'jump-interval': proxy.portRange ? 180 : undefined,
+                    'jump-interval': proxy.portRange ? 30 : undefined,
                 };
 			case 'trojan':
 				return {
