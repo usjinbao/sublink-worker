@@ -28,9 +28,15 @@
 
 ##### 负载-主机：大白话就是根据访问IP和二级域名的访问顺序分配节点，相同的会使用同一个节点，可以避免同一站点IP变化的问题
 
+##### clash
 ![image](https://github.com/user-attachments/assets/82673b08-c483-4dbc-85b3-cb842f784c49)
 
+##### surge
 
+![image](https://github.com/user-attachments/assets/374df543-7c0c-4682-94e6-6f9a254765e9)
+
+##### Sinbo 因为没有使用，没有测试图
+#
 
 ## 🚀 快速开始
 
