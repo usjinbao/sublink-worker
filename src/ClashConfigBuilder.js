@@ -62,7 +62,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         lazy: false
     });
 
-        proxyList.unshift('⚖️ 负载均衡-顺序', '- ⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择', );
+        proxyList.unshift('⚖️ 负载均衡-顺序', '⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择');
         outbounds.unshift('🚀 节点选择');
         
         outbounds.forEach(outbound => {
