@@ -63,9 +63,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             });
 
             this.config['proxy-groups'].push({
-                name: '⚖️ 负载-占用',
+                name: '⚖️ 负载-数量',
                 type: 'load-balance',
-                strategy: 'bandwidth-utilization-balancing',
+                strategy: 'least-connections',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
                 interval: 300
