@@ -1,29 +1,33 @@
 <div align="center">
-  <h1><b>Sublink Worker</b></h1>
-  ###本项目修改自：https://github.com/7Sageer/sublink-worker
-  ###新增了负载均衡组，节点包含负载、F、优质、高速等关键字的会自动加入到负载均衡这个组，负载均衡可以多个节点同时使用，大幅度提升网络使用率![image](https://github.com/user-attachments/assets/25dc4db4-fc28-4c69-9303-9b75cde2ad29)
-
+  <h1><b>无服务器部署在线节点订阅</b></h1>
   <h5><i>Serverless 自部署订阅转换工具最佳实践</i></h5>
   
-  <a href="https://trendshift.io/repositories/12291" target="_blank">
-    <img src="https://trendshift.io/api/badge/repositories/12291" alt="7Sageer%2Fsublink-worker | Trendshift" width="250" height="55"/>
-  </a>
-  
-  <!-- <p>
-    <a href="https://sublink-worker.sageer.me">https://sublink-worker.sageer.me</a>
-  </p> -->
-  <br>
 
-  <p>
-    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/usjinbao/sublink-worker">
-      <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare Workers"/>
-    </a>
-  </p>
 </div>
+
+### 本项目修改自：https://github.com/7Sageer/sublink-worker，部署方法在下方有原项目视频
+
+### 修改内容：
+
+1、界面进行了汉化，全中文界面。
+
+2、新增了负载均衡组，负载均衡可以多个节点同时使用，大幅度提升网络使用率，告别手动切换节点，节点包含：负载、F、优质、高速等关键字的会自动加入到负载均衡这个组，其他的节点不会加入，
+   防止非优质的节点加入到负载均衡后拖慢网络速度。
+   
+3、hysteria2节点新增端口跳跃，原节点如果包含端口范围会新增端口跳跃的相关参数，比如伪装地址sni、udp、端口随机跳跃、端口跳跃时间(默认30秒)
+
+4、修改balanced默认选项的节点分组
+
+![image](https://github.com/user-attachments/assets/25dc4db4-fc28-4c69-9303-9b75cde2ad29)
 
 ## 🚀 快速开始
 
 ### 一键部署
+<p>
+    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/usjinbao/sublink-worker">
+      <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare Workers"/>
+    </a>
+  </p>
 点击上方的 "Deploy to Workers" 按钮，即可快速部署您的专属订阅转换服务。
 
 ### 新手指南
