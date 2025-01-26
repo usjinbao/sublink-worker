@@ -69,7 +69,7 @@ const generateGithubLink = () => `
 
 const generateCardHeader = () => `
   <div class="card-header text-center">
-    <h1 class="display-4 mb-0">Sublink Worker</h1>
+    <h6 class="display-7 mb-0">注意：你所提交的内容会保存到服务器</h6>
   </div>
 `;
 
@@ -82,7 +82,7 @@ const generateForm = () => `
 
     <div class="form-check form-switch mb-3">
       <input class="form-check-input" type="checkbox" id="advancedToggle">
-      <label class="form-check-label" for="advancedToggle">Advanced Options</label>
+      <label class="form-check-label" for="advancedToggle">高级选项</label>
     </div>
 
     <div id="advancedOptions">
@@ -92,11 +92,11 @@ const generateForm = () => `
 
       <div class="form-section">
         <div class="form-section-title d-flex align-items-center">
-          Base Config Settings(Optional)
+          基本配置设置（可选）
           <span class="tooltip-icon ms-2">
             <i class="fas fa-question-circle"></i>
             <span class="tooltip-content">
-              This feature is experimental and may not work as expected. You can paste your own base config here. Go to <a href="https://github.com/7Sageer/sublink-worker/blob/main/docs/base-config.md" target="_blank">docs</a> for more information.
+              此功能是实验性的，可能无法按预期工作。您可以在此处粘贴自己的基本配置。转到<a href="https://github.com/7Sageer/sublink-worker/blob/main/docs/base-config.md" target="_blank">docs</a> 了解更多信息.
             </span>
           </span>
         </div>
@@ -107,12 +107,12 @@ const generateForm = () => `
           </select>
         </div>
         <div class="mb-3">
-          <textarea class="form-control" id="configEditor" rows="3" placeholder="Paste your custom config here..."></textarea>
+          <textarea class="form-control" id="configEditor" rows="3" placeholder="将自定义配置粘贴到此处..."></textarea>
         </div>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-secondary" onclick="saveConfig()">Save Config</button>
+          <button type="button" class="btn btn-secondary" onclick="saveConfig()">保存配置</button>
           <button type="button" class="btn btn-outline-danger" onclick="clearConfig()">
-            <i class="fas fa-trash-alt me-2"></i>Clear Config
+            <i class="fas fa-trash-alt me-2"></i>清除配置
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ const generateForm = () => `
 
     <div class="d-flex gap-2 mt-4">
       <button type="submit" class="btn btn-primary flex-grow-1">
-        <i class="fas fa-sync-alt me-2"></i>Convert
+        <i class="fas fa-sync-alt me-2"></i>转换
       </button>
       <button type="button" class="btn btn-outline-secondary" id="clearFormBtn">
         <i class="fas fa-trash-alt me-2"></i>Clear
@@ -362,11 +362,11 @@ const darkModeToggleFunction = () => `
 const generateRuleSetSelection = () => `
   <div class="container">
     <div class="header-container">
-      <h4 class="header-title">Rule Selection</h4>
+      <h4 class="header-title">规则选择</h4>
       <span class="tooltip-icon">
         <i class="fas fa-question-circle"></i>
         <span class="tooltip-content">
-          These rules determine how traffic is directed through different proxies or directly. If you're unsure, you can use a predefined rule set.
+          这些规则决定了如何通过不同的代理或直接引导流量。如果您不确定，可以使用预定义的规则集。
         </span>
       </span>
     </div>
@@ -390,15 +390,15 @@ const generateRuleSetSelection = () => `
       `).join('')}
     </div>
     <div class="mt-4">
-      <h5>Custom Rules</h5>
+      <h5>自定义规则</h5>
       <div class="form-check form-switch mb-3">
         <input class="form-check-input" type="checkbox" id="crpinToggle">
-        <label class="form-check-label" for="crpinToggle">Pin Custom Rules</label>
+        <label class="form-check-label" for="crpinToggle">固定自定义规则</label>
       </div>
       <div id="customRules">
       <!-- Custom rules will be dynamically added here -->
     </div>
-    <button type="button" class="btn btn-secondary mt-2" onclick="addCustomRule()">Add Custom Rule</button>
+    <button type="button" class="btn btn-secondary mt-2" onclick="addCustomRule()">添加自定义规则</button>
   </div>
   </div>
 `;
@@ -625,52 +625,52 @@ const customRuleFunctions = `
     newRuleDiv.dataset.ruleId = customRuleCount++;
     newRuleDiv.innerHTML = \`
       <div class="mb-2">
-        <label class="form-label">Outbound Name*</label>
+        <label class="form-label">出站名称</label>
         <input type="text" class="form-control mb-2" name="customRuleName[]" placeholder="Rule Name" required>
       </div>
       <div class="mb-2">
-        <label class="form-label">Geo-Site Rule Sets</label>
+        <label class="form-label">地理站点规则集</label>
         <span class="tooltip-icon">
           <i class="fas fa-question-circle"></i>
           <span class="tooltip-content">
-            Site Rules in SingBox comes from https://github.com/lyc8503/sing-box-rules, that means your custom rules must be in the repos
+            SingBox中的网站规则来自https://github.com/lyc8503/sing-box-rules, 这意味着您的自定义规则必须在存储库中
           </span>
         </span>
         <input type="text" class="form-control" name="customRuleSite[]" placeholder="e.g., google,anthropic">
       </div>
       <div class="mb-2">
-        <label class="form-label">Geo-IP Rule Sets</label>
+        <label class="form-label">地理IP规则集</label>
         <span class="tooltip-icon">
           <i class="fas fa-question-circle"></i>
           <span class="tooltip-content">
-            IP Rules in SingBox comes from https://github.com/lyc8503/sing-box-rules, that means your custom rules must be in the repos
+            SingBox中的IP规则来自https://github.com/lyc8503/sing-box-rules, 这意味着您的自定义规则必须在存储库中
           </span>
         </span>
         <input type="text" class="form-control" name="customRuleIP[]" placeholder="e.g., private,cn">
       </div>
       <div class="mb-2">
-        <label class="form-label">Domain Suffix</label>
-        <input type="text" class="form-control mb-2" name="customRuleDomainSuffix[]" placeholder="Domain Suffix (comma separated)">
+        <label class="form-label">域后缀</label>
+        <input type="text" class="form-control mb-2" name="customRuleDomainSuffix[]" placeholder="域后缀（逗号分隔）">
       </div>
       <div class="mb-2">
-        <label class="form-label">Domain Keyword</label>
-        <input type="text" class="form-control mb-2" name="customRuleDomainKeyword[]" placeholder="Domain Keyword (comma separated)">
+        <label class="form-label">域名关键字</label>
+        <input type="text" class="form-control mb-2" name="customRuleDomainKeyword[]" placeholder="域关键字（逗号分隔）">
       </div>
       <div class="mb-2">
         <label class="form-label">IP CIDR</label>
-        <input type="text" class="form-control mb-2" name="customRuleIPCIDR[]" placeholder="IP CIDR (comma separated)">
+        <input type="text" class="form-control mb-2" name="customRuleIPCIDR[]" placeholder="IP CIDR (逗号分隔)">
       </div>
       <div class="mb-2">
-        <label class="form-label">Protocol</label>
+        <label class="form-label">协议</label>
         <span class="tooltip-icon">
           <i class="fas fa-question-circle"></i>
           <span class="tooltip-content">
-            Protocol rules for specific traffic types. More details: https://sing-box.sagernet.org/configuration/route/sniff/
+            特定流量类型的协议规则。更多详情: https://sing-box.sagernet.org/configuration/route/sniff/
           </span>
         </span>
         <input type="text" class="form-control mb-2" name="customRuleProtocol[]" placeholder="Protocol (comma separated, e.g, http,ssh,dns)">
       </div>
-      <button type="button" class="btn btn-danger btn-sm" onclick="removeCustomRule(this)">Remove</button>
+      <button type="button" class="btn btn-danger btn-sm" onclick="removeCustomRule(this)">移除</button>
     \`;
     customRulesDiv.appendChild(newRuleDiv);
   }
