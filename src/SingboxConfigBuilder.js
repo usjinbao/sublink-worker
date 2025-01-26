@@ -29,14 +29,51 @@ export class ConfigBuilder extends BaseConfigBuilder {
         }
 
         const proxyList = this.config.outbounds.filter(outbound => outbound?.server != undefined).map(outbound => outbound.tag);
+        
+        // 创建高速节点列表（名称包含特定关键字的节点）
+        const highSpeedProxies = proxyList.filter(name => 
+            name.includes('F') || 
+            name.includes('负载') || 
+            name.includes('高速') ||
+            name.includes('优选')
+        );
 
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            // 添加轮询模式负载均衡
+            this.config.outbounds.unshift({
+                type: "urltest",
+                tag: "⚖️ 负载-顺序",
+                outbounds: DeepCopy(highSpeedProxies),
+                url: "http://www.google.com/generate_204",
+                interval: "300s",
+                tolerance: 50
+            });
+
+            // 添加固定节点负载均衡（模拟 consistent-hashing）
+            this.config.outbounds.unshift({
+                type: "urltest",
+                tag: "⚖️ 负载-主机",
+                outbounds: DeepCopy(highSpeedProxies),
+                url: "http://www.google.com/generate_204",
+                interval: "300s",
+                tolerance: 50,
+                sticky: true  // 保持连接固定到同一节点
+            });
+        }
+
+        // 添加自动选择组
         this.config.outbounds.unshift({
             type: "urltest",
             tag: "⚡ 自动选择",
             outbounds: DeepCopy(proxyList),
+            url: "http://www.google.com/generate_204",
+            interval: "300s"
         });
 
-        proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择');
+        // 更新代理列表
+        const balancerGroups = highSpeedProxies.length > 0 ? ['⚖️ 负载-顺序', '⚖️ 负载-主机'] : [];
+        proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择', ...balancerGroups);
         outbounds.unshift('🚀 节点选择','GLOBAL');
         
         outbounds.forEach(outbound => {
