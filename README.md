@@ -1,5 +1,8 @@
 <div align="center">
   <h1><b>Sublink Worker</b></h1>
+  ###本项目修改自：https://github.com/7Sageer/sublink-worker
+  ###新增了负载均衡组，节点包含负载、F、优质、高速等关键字的会自动加入到负载均衡这个组，负载均衡可以多个节点同时使用，大幅度提升网络使用率![image](https://github.com/user-attachments/assets/25dc4db4-fc28-4c69-9303-9b75cde2ad29)
+
   <h5><i>Serverless 自部署订阅转换工具最佳实践</i></h5>
   
   <a href="https://trendshift.io/repositories/12291" target="_blank">
