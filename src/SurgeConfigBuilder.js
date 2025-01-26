@@ -105,14 +105,20 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 break;
             case 'hysteria2':
                 surgeProxy = `${proxy.tag} = hysteria2, ${proxy.server}, ${proxy.server_port}, password=${proxy.password}`;
-                if (proxy.tls?.server_name) {
-                    surgeProxy += `, sni=${proxy.tls.server_name}`;
+                if (proxy.sni) {
+                    surgeProxy += `, sni=${proxy.sni}`;
                 }
-                if (proxy.tls?.insecure) {
+                if (proxy.skipCertVerify) {
                     surgeProxy += ', skip-cert-verify=true';
                 }
-                if (proxy.tls?.alpn) {
-                    surgeProxy += `, alpn=${proxy.tls.alpn.join(',')}`;
+                if (proxy.alpn) {
+                    surgeProxy += `, alpn=${proxy.alpn.join(',')}`;
+                }
+                if (proxy.udp) {
+                    surgeProxy += ', udp=true';
+                }
+                if (proxy.portRange) {
+                    surgeProxy += `, port-range=${proxy.portRange}`;
                 }
                 break;
             case 'tuic':
@@ -157,23 +163,50 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         const proxyList = this.config.proxies || [];
         const proxyNames = proxyList.map(proxy => proxy.split('=')[0].trim());
 
+        // 创建高速节点列表（名称包含特定关键字的节点）
+        const highSpeedProxies = proxyNames.filter(name => 
+            name.includes('F') || 
+            name.includes('负载') || 
+            name.includes('高速') ||
+            name.includes('优选')
+        );
+
         // 创建策略组配置生成器
         const createProxyGroup = (name, type, options = [], extraConfig = '') => {
             const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT-DROP'];
-            const allOptions = [...baseOptions, ...options, ...proxyNames];
+            const allOptions = [...baseOptions, ...options];
             return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
         };
 
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
 
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            // 添加负载均衡策略组
+            this.config['proxy-groups'].push(
+                createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
+                    ', url=http://www.google.com/generate_204, interval=300, persistent=1')
+            );
+            
+            this.config['proxy-groups'].push(
+                createProxyGroup('⚖️ 负载-主机', 'load-balance', highSpeedProxies, 
+                    ', url=http://www.google.com/generate_204, interval=300, persistent=1, hash=consistent')
+            );
+        }
+
         // 添加自动选择策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('⚡ 自动选择', 'url-test', [], ', url=http://www.gstatic.com/generate_204, interval=300')
+            createProxyGroup('⚡ 自动选择', 'url-test', proxyNames, 
+                ', url=http://www.gstatic.com/generate_204, interval=300')
         );
 
-        // 添加节点选择策略组
+        // 添加节点选择策略组（包含负载均衡组）
+        const nodeSelectOptions = highSpeedProxies.length > 0 ? 
+            ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚡ 自动选择', ...proxyNames] : 
+            ['⚡ 自动选择', ...proxyNames];
+        
         this.config['proxy-groups'].push(
-            createProxyGroup('🚀 节点选择', 'select', ['⚡ 自动选择'])
+            createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
         );
 
         // 添加其他策略组
@@ -324,4 +357,4 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             return null;
         }
     }
-} 
+}
