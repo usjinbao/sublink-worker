@@ -61,15 +61,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 url: 'http://www.google.com/generate_204',
                 interval: 300
             });
-
-            this.config['proxy-groups'].push({
-                name: '⚖️ 负载-数量',
-                type: 'load-balance',
-                strategy: 'least-connections',
-                proxies: DeepCopy(highSpeedProxies),
-                url: 'http://www.google.com/generate_204',
-                interval: 300
-            });
     
             this.config['proxy-groups'].push({
                 name: '⚡ 自动选择',
@@ -81,7 +72,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             });
         }
         // 为节点选择组创建完整代理列表（包含负载均衡）
-        const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚖️ 负载-数量', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
         // 为其他选择组创建基础代理列表（不包含负载均衡）
         const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
     
