@@ -33,35 +33,44 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         }
 
         const proxyList = this.config.proxies.map(proxy => proxy.name);
+        
+        // 创建高速节点列表（名称包含特定关键字的节点）
+        const highSpeedProxies = proxyList.filter(name => 
+            name.includes('F') || 
+            name.includes('负载') || 
+            name.includes('高速') ||
+            name.includes('优选')
+        );
+
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            this.config['proxy-groups'].push({
+                name: '⚖️ 负载均衡-顺序',
+                type: 'load-balance',
+                strategy: 'round-robin',
+                proxies: DeepCopy(highSpeedProxies),
+                url: 'http://www.google.com/generate_204',
+                interval: 300
+            });
+        
+            this.config['proxy-groups'].push({
+                name: '⚖️ 负载均衡-随机',
+                type: 'load-balance',
+                strategy: 'consistent-hashing',
+                proxies: DeepCopy(highSpeedProxies),
+                url: 'http://www.google.com/generate_204',
+                interval: 300
+            });
     
-        // 添加负载均衡组
-        this.config['proxy-groups'].push({
-            name: '⚖️ 负载均衡-顺序',
-            type: 'load-balance',
-            strategy: 'round-robin',
-            proxies: DeepCopy(proxyList),
-            url: 'http://www.google.com/generate_204',
-            interval: 300
-        });
-    
-        this.config['proxy-groups'].push({
-            name: '⚖️ 负载均衡-随机',
-            type: 'load-balance',
-            strategy: 'consistent-hashing',
-            proxies: DeepCopy(proxyList),
-            url: 'http://www.google.com/generate_204',
-            interval: 300
-        });
-    
-        this.config['proxy-groups'].push({
-            name: '⚡ 自动选择',
-            type: 'url-test',
-            proxies: DeepCopy(proxyList),
-            url: 'https://www.gstatic.com/generate_204',
-            interval: 300,
-            lazy: false
-        });
-    
+            this.config['proxy-groups'].push({
+                name: '⚡ 自动选择',
+                type: 'url-test',
+                proxies: DeepCopy(proxyList),
+                url: 'https://www.gstatic.com/generate_204',
+                interval: 300,
+                lazy: false
+            });
+        }
         // 为节点选择组创建完整代理列表（包含负载均衡）
         const nodeSelectProxies = ['⚖️ 负载均衡-顺序', '⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
         // 为其他选择组创建基础代理列表（不包含负载均衡）
