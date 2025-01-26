@@ -6,7 +6,8 @@
   
 </div>
 
-### 本项目修改自：https://github.com/7Sageer/sublink-worker
+### 目修改自：https://github.com/7Sageer/sublink-worker
+### 本项目demo：https://sub.bitwld.com
 
 ## 修改内容：
 
