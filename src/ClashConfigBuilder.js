@@ -45,7 +45,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
             this.config['proxy-groups'].push({
-                name: '⚖️ 负载均衡-顺序',
+                name: '⚖️ 负载-顺序',
                 type: 'load-balance',
                 strategy: 'round-robin',
                 proxies: DeepCopy(highSpeedProxies),
@@ -54,9 +54,18 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             });
         
             this.config['proxy-groups'].push({
-                name: '⚖️ 负载均衡-随机',
+                name: '⚖️ 负载-主机',
                 type: 'load-balance',
                 strategy: 'consistent-hashing',
+                proxies: DeepCopy(highSpeedProxies),
+                url: 'http://www.google.com/generate_204',
+                interval: 300
+            });
+
+            this.config['proxy-groups'].push({
+                name: '⚖️ 负载-占用',
+                type: 'load-balance',
+                strategy: 'bandwidth-utilization-balancing',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
                 interval: 300
@@ -72,7 +81,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             });
         }
         // 为节点选择组创建完整代理列表（包含负载均衡）
-        const nodeSelectProxies = ['⚖️ 负载均衡-顺序', '⚖️ 负载均衡-随机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚖️ 负载-占用', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
         // 为其他选择组创建基础代理列表（不包含负载均衡）
         const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
     
