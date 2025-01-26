@@ -7,7 +7,7 @@
 </div>
 
 ### 目修改自：https://github.com/7Sageer/sublink-worker
-### 本项目demo：https://sub.iizz.us.kg
+### 本项目演示：https://sub.iizz.us.kg
 
 ## 修改内容：
 
