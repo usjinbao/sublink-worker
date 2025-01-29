@@ -112,7 +112,14 @@ export class ConfigBuilder extends BaseConfigBuilder {
     formatConfig() {
         const rules = generateRules(this.selectedRules, this.customRules, this.pin);
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
-
+    
+        // 添加全局连接参数
+        this.config.global = {
+            tcp_connect_timeout: "2s",    // TCP 连接超时时间
+            tcp_retry: 5,                 // 连接失败重试次数
+            tcp_retry_interval: "1s",     // 重试间隔时间
+        };
+    
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
 
         this.config.route.rules = rules.map(rule => ({
