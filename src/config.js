@@ -414,7 +414,7 @@ export const CLASH_CONFIG = {
 	mode: 'Rule',
 	'log-level': 'info',
     // 全局连接参数 超时时间，重试次数 重试间隔
-    'tcp-conn-timeout': 2,
+    'tcp-conn-timeout': 1,
     'retry': 5,
     'retry-interval': 1,
 	dns: {
