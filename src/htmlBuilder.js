@@ -375,7 +375,7 @@ const generateRuleSetSelection = () => `
       <select class="form-select" id="predefinedRules" onchange="applyPredefinedRules()">
         <option value="custom">Custom</option>
         <option value="minimal">Minimal</option>
-        <option value="balanced" selected>Balanced</option>
+        <option value="balanced">Balanced</option>
         <option value="comprehensive">Comprehensive</option>
       </select>
     </div>
@@ -533,22 +533,15 @@ const submitFormFunction = () => `
       }
     }
     
-    // 设置默认规则集为 balanced 并应用规则
-    const savedPredefinedRules = localStorage.getItem('predefinedRules');
-    if (!savedPredefinedRules) {
-      document.getElementById('predefinedRules').value = 'balanced';
-      applyPredefinedRules();  // 自动应用规则
-    } else {
-      document.getElementById('predefinedRules').value = savedPredefinedRules;
-      applyPredefinedRules();
-    }
+    // 加载 configEditor 和 configType
+    const savedConfig = localStorage.getItem('configEditor');
+    const savedConfigType = localStorage.getItem('configType');
     
-    const savedCustomPath = localStorage.getItem('configEditor');
-    if (savedCustomPath) {
-      document.getElementById('configEditor').value = savedCustomPath;
+    if (savedConfig) {
+      document.getElementById('configEditor').value = savedConfig;
     }
-    if (savedCustomPath) {
-      document.getElementById('configType').value = savedCustomPath;
+    if (savedConfigType) {
+      document.getElementById('configType').value = savedConfigType;
     }
     
     const savedCustomPath = localStorage.getItem('customPath');
