@@ -413,6 +413,15 @@ export const CLASH_CONFIG = {
 	'allow-lan': false,
 	mode: 'Rule',
 	'log-level': 'info',
+    // 全局连接参数
+    'tcp-conn-timeout': 2,
+    'retry': 5,
+    'retry-interval': 1,
+	// 全局连接参数说明
+    '#tcp-conn-timeout': '# TCP 连接超时时间（秒）',
+    '#retry': '# 连接失败后的重试次数',
+    '#retry-interval': '# 重试之间的时间间隔（秒）',
+
 	dns: {
 		enable: true,
 		ipv6: true,
