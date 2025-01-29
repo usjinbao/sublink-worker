@@ -185,6 +185,15 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
 
+        // 添加节点选择策略组（包含负载均衡组）
+        const nodeSelectOptions = highSpeedProxies.length > 0 ? 
+            ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚡ 自动选择', ...proxyNames] : 
+            ['⚡ 自动选择', ...proxyNames];
+        
+        this.config['proxy-groups'].push(
+            createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
+        );
+        
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
             // 添加负载均衡策略组
@@ -200,19 +209,12 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         }
 
         // 添加自动选择策略组
+        
         this.config['proxy-groups'].push(
             createProxyGroup('⚡ 自动选择', 'url-test', proxyNames, 
                 ', url=http://www.gstatic.com/generate_204, interval=300')
         );
 
-        // 添加节点选择策略组（包含负载均衡组）
-        const nodeSelectOptions = highSpeedProxies.length > 0 ? 
-            ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚡ 自动选择', ...proxyNames] : 
-            ['⚡ 自动选择', ...proxyNames];
-        
-        this.config['proxy-groups'].push(
-            createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
-        );
 
         // 添加其他策略组
         outbounds.forEach(outbound => {
