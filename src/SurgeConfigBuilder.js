@@ -11,7 +11,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'http-listen': '127.0.0.1:6152',
                 'socks5-listen': '127.0.0.1:6153',
                 // 添加全局连接参数 超时2秒 重试次数6次，重试间隔1s
-                'connect-timeout': 2,
+                'connect-timeout': 1,
                 'retry-count': 5,
                 'retry-interval': 1,
                 // 其他现有配置保持不变
