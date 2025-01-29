@@ -10,6 +10,11 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'wifi-access-socks5-port': 6153,
                 'http-listen': '127.0.0.1:6152',
                 'socks5-listen': '127.0.0.1:6153',
+                // 添加全局连接参数 超时2秒 重试次数6次，重试间隔1s
+                'connect-timeout': 2,
+                'retry-count': 5,
+                'retry-interval': 1,
+                // 其他现有配置保持不变
                 'allow-hotspot-access': false,
                 'skip-proxy': '127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,100.64.0.0/10,17.0.0.0/8,localhost,*.local,*.crashlytics.com,seed-sequoia.siri.apple.com,sequoia.apple.com',
                 'test-timeout': 5,
