@@ -42,9 +42,10 @@ export class ConfigBuilder extends BaseConfigBuilder {
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
-                type: "urltest",
+                type: "load-balance",
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
+                strategy: "round-robin" 
                 url: "http://www.google.com/generate_204",
                 interval: "300s",
                 tolerance: 50
@@ -52,9 +53,10 @@ export class ConfigBuilder extends BaseConfigBuilder {
 
             // 添加固定节点负载均衡（模拟 consistent-hashing）
             this.config.outbounds.unshift({
-                type: "urltest",
+                type: "load-balance",
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
+                strategy: "consistent-hashing" 
                 url: "http://www.google.com/generate_204",
                 interval: "300s",
                 tolerance: 50,
@@ -113,11 +115,11 @@ export class ConfigBuilder extends BaseConfigBuilder {
         const rules = generateRules(this.selectedRules, this.customRules, this.pin);
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
     
-        // 添加全局连接参数
+        // 添加全局连接参数 // TCP 连接超时时间 // 重试间隔时间
         this.config.global = {
-            tcp_connect_timeout: "2s",    // TCP 连接超时时间
-            tcp_retry: 5,                 // 连接失败重试次数
-            tcp_retry_interval: "1s",     // 重试间隔时间
+            tcp_connect_timeout: "1s",
+            tcp_retry: 5,
+            tcp_retry_interval: "1s",
         };
     
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
