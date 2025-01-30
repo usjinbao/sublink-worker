@@ -290,11 +290,6 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
 
 // Singbox configuration
 export const SING_BOX_CONFIG = {
-	global: {
-        tcp_connect_timeout: "1s",  // 连接超时时间
-        tcp_retry: 5,               // 重试次数
-        tcp_retry_interval: "1s",   // 重试间隔
-    },
 	dns: {
 		servers: [
 			{
@@ -408,7 +403,11 @@ export const SING_BOX_CONFIG = {
 		clash_api: {
 			external_controller: '127.0.0.1:9090',
 			external_ui: 'dashboard'
-		}
+		},
+		// 将原来 global 中的连接参数移到这里
+		tcp_connect_timeout: "1s",
+		tcp_retry: 5,
+		tcp_retry_interval: "1s",
 	}
 };
 
