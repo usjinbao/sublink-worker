@@ -60,30 +60,27 @@ export class ConfigBuilder extends BaseConfigBuilder {
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
-                type: "selector",
-                tag: "⚖️ 负载-顺序",
-                outbounds: DeepCopy(highSpeedProxies),
-                load_balance: {
-                    type: "round-robin"
-                },
-                check: {
-                    url: "http://www.google.com/generate_204",
-                    interval: "300s"
+                "type": "load_balance",
+                "tag": "⚖️ 负载-顺序",
+                "strategy": "round_robin", // 采用下划线风格的策略名称
+                "outbounds": DeepCopy(highSpeedProxies),
+                "healthcheck": {
+                    "enabled": true, // 启用健康检查
+                    "url": "http://www.google.com/generate_204",
+                    "interval": 300s // 用整数表示间隔秒数
                 }
             });
 
-            // 添加固定节点负载均衡
+            // 添加固定节点负载均衡，这里是最少连接策略
             this.config.outbounds.unshift({
-                type: "selector",
-                tag: "⚖️ 负载-主机",
-                outbounds: DeepCopy(highSpeedProxies),
-                load_balance: {
-                    type: "consistent-hash",
-                    sticky: true
-                },
-                check: {
-                    url: "http://www.google.com/generate_204",
-                    interval: "300s"
+                "type": "load_balance",
+                "tag": "⚖️ 负载-主机",
+                "strategy": "least_connection",
+                "outbounds": DeepCopy(highSpeedProxies),
+                "healthcheck": {
+                    "enabled": true,
+                    "url": "http://www.google.com/generate_204",
+                    "interval": 300s
                 }
             });
         }
