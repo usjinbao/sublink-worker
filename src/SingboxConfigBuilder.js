@@ -60,25 +60,27 @@ export class ConfigBuilder extends BaseConfigBuilder {
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
-                type: "load-balance",
+                type: "loadbalance",
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
                 strategy: "round-robin",
-                url: "http://www.google.com/generate_204",
-                interval: "300s",
-                tolerance: 50
+                check: {
+                    url: "http://www.google.com/generate_204",
+                    interval: "300s"
+                }
             });
 
-            // 添加固定节点负载均衡（模拟 consistent-hashing）
+            // 添加固定节点负载均衡
             this.config.outbounds.unshift({
-                type: "load-balance",
+                type: "loadbalance",
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
                 strategy: "consistent-hashing",
-                url: "http://www.google.com/generate_204",
-                interval: "300s",
-                tolerance: 50,
-                sticky: true  // 保持连接固定到同一节点
+                sticky: true,  // 为相同目标地址保持使用相同节点
+                check: {
+                    url: "http://www.google.com/generate_204",
+                    interval: "300s"
+                }
             });
         }
 
