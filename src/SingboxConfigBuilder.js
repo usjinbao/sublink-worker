@@ -133,8 +133,9 @@ export class ConfigBuilder extends BaseConfigBuilder {
         const rules = generateRules(this.selectedRules, this.customRules, this.pin);
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
     
-        // 添加全局连接参数 // TCP 连接超时时间 // 重试间隔时间
-        this.config.global = {
+        // 移除 global 配置，改为在 experimental 中设置
+        this.config.experimental = {
+            ...this.config.experimental,
             tcp_connect_timeout: "1s",
             tcp_retry: 5,
             tcp_retry_interval: "1s",
