@@ -290,6 +290,11 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
 
 // Singbox configuration
 export const SING_BOX_CONFIG = {
+	global: {
+        tcp_connect_timeout: "1s",  // 连接超时时间
+        tcp_retry: 5,               // 重试次数
+        tcp_retry_interval: "1s",   // 重试间隔
+    },
 	dns: {
 		servers: [
 			{
