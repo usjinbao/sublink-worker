@@ -14,7 +14,26 @@ export class ConfigBuilder extends BaseConfigBuilder {
     }
 
     addCustomItems(customItems) {
-        const validItems = customItems.filter(item => item != null);
+        const validItems = customItems.filter(item => item != null).map(item => {
+            if (item.type === 'hysteria2') {
+                return {
+                    ...item,
+                    hop_ports: item.portRange,
+                    hop_interval: item.portRange ? "30s" : undefined,
+                    hop_ports_policy: item.portRange ? "random" : undefined,
+                    tls: {
+                        ...item.tls,
+                        enabled: true,
+                        server_name: item.sni,
+                        alpn: ["h3"],
+                        insecure: item.skipCertVerify || false  // 添加证书验证配置
+                    },
+                    udp_relay: item.udp ?? true,
+                    password: item.password || item.auth  // 确保 auth 字段正确传递
+                };
+            }
+            return item;
+        });
         this.config.outbounds.push(...validItems);
     }
 
@@ -29,7 +48,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
         }
 
         const proxyList = this.config.outbounds.filter(outbound => outbound?.server != undefined).map(outbound => outbound.tag);
-        
+
         // 创建高速节点列表（名称包含特定关键字的节点）
         const highSpeedProxies = proxyList.filter(name => 
             name.includes('F') || 
@@ -37,7 +56,6 @@ export class ConfigBuilder extends BaseConfigBuilder {
             name.includes('高速') ||
             name.includes('优选')
         );
-
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
@@ -45,7 +63,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 type: "load-balance",
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
-                strategy: "round-robin" 
+                strategy: "round-robin",
                 url: "http://www.google.com/generate_204",
                 interval: "300s",
                 tolerance: 50
@@ -56,7 +74,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 type: "load-balance",
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
-                strategy: "consistent-hashing" 
+                strategy: "consistent-hashing",
                 url: "http://www.google.com/generate_204",
                 interval: "300s",
                 tolerance: 50,
