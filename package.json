@@ -16,6 +16,5 @@
   "dependencies": {
     "js-yaml": "^4.1.0"，
     "sublink-plus": "file:"
-    "js-yaml": "^4.1.0"
   }
 }
