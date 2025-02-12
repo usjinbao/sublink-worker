@@ -46,7 +46,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
                 url: "http://www.google.com/generate_204",
-                interval: "300s",
+                interval: "60s",
                 tolerance: 50
             });
 
@@ -56,7 +56,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
                 url: "http://www.google.com/generate_204",
-                interval: "300s",
+                interval: "60s",
                 tolerance: 50,
                 sticky: true  // 保持连接固定到同一节点
             });

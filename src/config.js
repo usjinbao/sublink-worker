@@ -419,21 +419,18 @@ export const CLASH_CONFIG = {
 		'respect-rules': true,
 		'enhanced-mode': 'fake-ip',
 		nameserver: [
-			'https://120.53.53.53/dns-query',
 			'https://223.5.5.5/dns-query'
 		],
 		'proxy-server-nameserver': [
-			'https://120.53.53.53/dns-query',
 			'https://223.5.5.5/dns-query'
 		],
 		'nameserver-policy': {
 			'geosite:cn,private': [
-				'https://120.53.53.53/dns-query',
 				'https://223.5.5.5/dns-query'
 			],
 			'geosite:geolocation-!cn': [
-				'https://dns.cloudflare.com/dns-query',
-				'https://dns.google/dns-query'
+				'https://dns.google/dns-query',
+				'https://dns.cloudflare.com/dns-query'
 			]
 		}
 	},

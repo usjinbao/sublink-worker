@@ -185,12 +185,12 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             // 添加负载均衡策略组
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=300, persistent=1')
+                    ', url=http://www.google.com/generate_204, interval=60, persistent=1')
             );
             
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-主机', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=300, persistent=1, hash=consistent')
+                    ', url=http://www.google.com/generate_204, interval=60, persistent=1, hash=consistent')
             );
         }
 
@@ -209,28 +209,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
         );
 
-        // 添加其他策略组
+        // 添加其他策略组，如果需要每个组后面都有节点就在这里加上'🚀 节点选择', ...proxyNames
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择'])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择', ...proxyNames])
                 );
             }
         });
-
-        // 添加自定义规则组
-        if (Array.isArray(this.customRules)) {
-            this.customRules.forEach(rule => {
-                this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择'])
-                );
-            });
-        }
-
-        // 添加漏网之鱼策略组
-        this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择'])
-        );
     }
 
     formatConfig() {

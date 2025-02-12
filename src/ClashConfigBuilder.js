@@ -50,7 +50,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 strategy: 'round-robin',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
-                interval: 300
+                interval: 10
             });
         
             this.config['proxy-groups'].push({
@@ -59,7 +59,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 strategy: 'consistent-hashing',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
-                interval: 300
+                interval: 10
             });
     
             this.config['proxy-groups'].push({
