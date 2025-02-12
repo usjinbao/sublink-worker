@@ -283,9 +283,9 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
 	});
 	}
 
-  ruleSets。push(...site_rule_sets, ...ip_rule_sets);
+  ruleSets.push(...site_rule_sets, ...ip_rule_sets);
 
-  return { site_rule_sets， ip_rule_sets };
+  return { site_rule_sets, ip_rule_sets };
 }
 
 // Singbox configuration
@@ -293,91 +293,91 @@ export const SING_BOX_CONFIG = {
 	dns: {
 		servers: [
 			{
-				标签: "dns_proxy"，
-				address: "tcp://1.1.1.1"，
-				address_resolver: "dns_resolver"，
-				strategy: "ipv4_only"，
+				tag: "dns_proxy",
+				address: "tcp://1.1.1.1",
+				address_resolver: "dns_resolver",
+				strategy: "ipv4_only",
 				detour: "🚀 节点选择"
-			}，
+			},
 			{
-				标签: "dns_direct"， 
-				address: "https://dns.alidns.com/dns-query"，
-				address_resolver: "dns_resolver"，
-				strategy: "ipv4_only"，
+				tag: "dns_direct", 
+				address: "https://dns.alidns.com/dns-query",
+				address_resolver: "dns_resolver",
+				strategy: "ipv4_only",
 				detour: "DIRECT"
-			}，
+			},
 			{
-				标签: "dns_resolver"，
-				address: "223.5.5.5"，
+				tag: "dns_resolver",
+				address: "223.5.5.5",
 				detour: "DIRECT"
-			}，
+			},
 			{
-				标签: "dns_success"，
+				tag: "dns_success",
 				address: "rcode://success"
-			}，
+			},
 			{
-				标签: "dns_refused"，
+				tag: "dns_refused",
 				address: "rcode://refused"
-			}，
+			},
 			{
-				标签: "dns_fakeip"，
+				tag: "dns_fakeip",
 				address: "fakeip"
 			}
-		]，
+		],
 		rules: [
 			{
-				outbound: "any"，
+				outbound: "any",
 				server: "dns_resolver"
-			}，
+			},
 			{
-				rule_set: "geolocation-!cn"，
+				rule_set: "geolocation-!cn",
 				query_type: [
-					"A"，
+					"A",
 					"AAAA"
-				]，
+				],
 				server: "dns_fakeip"
-			}，
+			},
 			{
-				rule_set: "geolocation-!cn"，
+				rule_set: "geolocation-!cn",
 				query_type: [
 					"CNAME"
-				]，
+				],
 				server: "dns_proxy"
-			}，
+			},
 			{
 				query_type: [
-					"A"，
-					"AAAA"，
+					"A",
+					"AAAA",
 					"CNAME"
-				]，
-				invert: true，
-				server: "dns_refused"，
+				],
+				invert: true,
+				server: "dns_refused",
 				disable_cache: true
 			}
-		]，
-		final: "dns_direct"，
-		independent_cache: true，
+		],
+		final: "dns_direct",
+		independent_cache: true,
 		fakeip: {
-			enabled: true，
-			inet4_range: "198.18.0.0/15"，
+			enabled: true,
+			inet4_range: "198.18.0.0/15",
 			inet6_range: "fc00::/18"
 		}
-	}，
+	},
 	ntp: {
-		enabled: true，
-		server: 'time.apple.com'，
-		server_port: 123，
-		interval: '30m'，
+		enabled: true,
+		server: 'time.apple.com',
+		server_port: 123,
+		interval: '30m',
 		detour: 'DIRECT'
-	}，
+	},
 	inbounds: [
-		{ type: 'mixed'， 标签: 'mixed-in'， listen: '0.0.0.0'， listen_port: 2080 }，
-		{ type: 'tun'， 标签: 'tun-in'， address: '172.19.0.1/30'， auto_route: true， strict_route: true， stack: 'mixed'， sniff: true }
-	]，
+		{ type: 'mixed', tag: 'mixed-in', listen: '0.0.0.0', listen_port: 2080 },
+		{ type: 'tun', tag: 'tun-in', address: '172.19.0.1/30', auto_route: true, strict_route: true, stack: 'mixed', sniff: true }
+	],
 	outbounds: [
-		{ type: 'direct'， 标签: 'DIRECT' }，
-		{ type: 'block'， 标签: 'REJECT' }，
-		{ type: 'dns'， 标签: 'dns-out' }
+		{ type: 'direct', tag: 'DIRECT' },
+		{ type: 'block', tag: 'REJECT' },
+		{ type: 'dns', tag: 'dns-out' }
 	]，
 	route : {
 		"rule_set": [
@@ -403,11 +403,7 @@ export const SING_BOX_CONFIG = {
 		clash_api: {
 			external_controller: '127.0.0.1:9090'，
 			external_ui: 'dashboard'
-		}，
-		// 将原来 global 中的连接参数移到这里
-		tcp_connect_timeout: "1s"，
-		tcp_retry: 5，
-		tcp_retry_interval: "1s"，
+		}
 	}
 };
 
@@ -417,10 +413,6 @@ export const CLASH_CONFIG = {
 	'allow-lan': false，
 	mode: 'Rule'，
 	'log-level': 'info'，
-    // 全局连接参数 超时时间，重试次数 重试间隔
-    'tcp-conn-timeout': 1，
-    'retry': 5，
-    'retry-interval': 1，
 	dns: {
 		enable: true，
 		ipv6: true，
