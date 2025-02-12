@@ -185,7 +185,9 @@ export class ProxyParser {
               skipCertVerify: params.insecure === '1',
               tls: tls,
               obfs: obfs,
-              udp: true
+              up_mbps: 100,
+              down_mbps: 300,
+              udp: true 
             };
           }
         }

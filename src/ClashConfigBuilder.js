@@ -188,61 +188,61 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 return {
                     name: proxy.tag,
                     type: proxy.type,
-                    server: proxy。server，
-                    port: proxy。server_port，
-                    password: proxy。password，
-                    auth: proxy。auth，
-                    'skip-cert-verify': proxy。skipCertVerify，
-                    sni: proxy。sni，
-                    udp: proxy。udp，
-                    'port-range': proxy。portRange，
-                    'jump-policy': proxy。portRange ? 'random' : undefined，
-                    'jump-interval': proxy。portRange ? 30 : undefined，
+                    server: proxy.server,
+                    port: proxy.server_port,
+                    password: proxy.password,
+                    auth: proxy.auth,
+                    'skip-cert-verify': proxy.skipCertVerify,
+                    sni: proxy.sni,
+                    udp: proxy.udp,
+                    'port-range': proxy.portRange,
+                    'jump-policy': proxy.portRange ? 'random' : undefined,
+                    'jump-interval': proxy.portRange ? 30 : undefined,
                 };
 			case 'trojan':
 				return {
-                    name: proxy。标签，
-                    type: proxy。type，
-                    server: proxy。server，
-                    port: proxy。server_port，
-                    password: proxy。password，
-                    cipher: proxy。security，
-                    tls: proxy。tls?.enabled || false，
-                    'client-fingerprint': proxy。tls。utls?.fingerprint，
-                    sni: proxy。tls?.server_name || ''，
-                    network: proxy。transport?.type || 'tcp'，
-                    'ws-opts': proxy。transport?.type === 'ws' ? {
-                        path: proxy。transport。path，
-                        headers: proxy。transport。headers
-                    }: undefined，
-                    'reality-opts': proxy。tls。reality?.enabled ? {
-                        'public-key': proxy。tls。reality。public_key，
-                        'short-id': proxy。tls。reality。short_id，
-                    } : undefined，
-                    'grpc-opts': proxy。transport?.type === 'grpc' ? {
-                        'grpc-mode': 'gun'，
-                        'grpc-service-name': proxy。transport。service_name，
-                    } : undefined，
-                    tfo : proxy。tcp_fast_open，
-                    'skip-cert-verify': proxy。tls。insecure，
-                    'flow': proxy。flow ?? undefined，
+                    name: proxy.tag,
+                    type: proxy.type,
+                    server: proxy.server,
+                    port: proxy.server_port,
+                    password: proxy.password,
+                    cipher: proxy.security,
+                    tls: proxy.tls?.enabled || false,
+                    'client-fingerprint': proxy.tls.utls?.fingerprint,
+                    sni: proxy.tls?.server_name || '',
+                    network: proxy.transport?.type || 'tcp',
+                    'ws-opts': proxy.transport?.type === 'ws' ? {
+                        path: proxy.transport.path,
+                        headers: proxy.transport.headers
+                    }: undefined,
+                    'reality-opts': proxy.tls.reality?.enabled ? {
+                        'public-key': proxy.tls.reality.public_key,
+                        'short-id': proxy.tls.reality.short_id,
+                    } : undefined,
+                    'grpc-opts': proxy.transport?.type === 'grpc' ? {
+                        'grpc-mode': 'gun',
+                        'grpc-service-name': proxy.transport.service_name,
+                    } : undefined,
+                    tfo : proxy.tcp_fast_open,
+                    'skip-cert-verify': proxy.tls.insecure,
+                    'flow': proxy.flow ?? undefined,
 				}
             case 'tuic':
                 return {
-                    name: proxy。标签，
-                    type: proxy。type，
-                    server: proxy。server，
-                    port: proxy。server_port，
-                    uuid: proxy。uuid，
-                    password: proxy。password，
-                    'congestion-controller': proxy。congestion，
-                    'skip-cert-verify': proxy。tls。insecure，
-                    'disable-sni': true，
-                    'alpn': proxy。tls。alpn，
-                    'sni': proxy。tls。server_name，
-                    'udp-relay-mode': 'native'，
+                    name: proxy.tag,
+                    type: proxy.type,
+                    server: proxy.server,
+                    port: proxy.server_port,
+                    uuid: proxy.uuid,
+                    password: proxy.password,
+                    'congestion-controller': proxy.congestion,
+                    'skip-cert-verify': proxy.tls.insecure,
+                    'disable-sni': true,
+                    'alpn': proxy.tls.alpn,
+                    'sni': proxy.tls.server_name,
+                    'udp-relay-mode': 'native',
                 };
-            默认:
+            default:
                 return proxy; // Return as-is if no specific conversion is defined
         }
     }

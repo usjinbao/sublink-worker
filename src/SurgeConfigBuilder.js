@@ -299,61 +299,61 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                         case 'telegram':
                             // Telegram 相关域名
                             finalConfig.push(`DOMAIN-SUFFIX,telegram.org,${rule.outbound}`);
-                            finalConfig。push(`DOMAIN-SUFFIX,telegram.me,${rule。outbound}`);
-                            finalConfig。push(`DOMAIN-SUFFIX,t.me,${rule。outbound}`);
-                            finalConfig。push(`DOMAIN-KEYWORD,telegram,${rule。outbound}`);
+                            finalConfig.push(`DOMAIN-SUFFIX,telegram.me,${rule.outbound}`);
+                            finalConfig.push(`DOMAIN-SUFFIX,t.me,${rule.outbound}`);
+                            finalConfig.push(`DOMAIN-KEYWORD,telegram,${rule.outbound}`);
                             break;
-                        默认:
+                        default:
                             // 其他域名规则转为 DOMAIN-KEYWORD
-                            finalConfig。push(`DOMAIN-KEYWORD,${site}，${rule。outbound}`);
+                            finalConfig.push(`DOMAIN-KEYWORD,${site},${rule.outbound}`);
                     }
                 });
             }
 
             // 处理 IP 规则
-            if (rule。ip_rules[0] !== '') {
-                rule。ip_rules。forEach(ip => {
-                    finalConfig。push(`GEOIP,${ip}，${rule。outbound},no-resolve`);
+            if (rule.ip_rules[0] !== '') {
+                rule.ip_rules.forEach(ip => {
+                    finalConfig.push(`GEOIP,${ip},${rule.outbound},no-resolve`);
                 });
             }
 
             // 处理域名后缀规则
-            if (rule。domain_suffix) {
-                rule。domain_suffix。forEach(suffix => {
-                    finalConfig。push(`DOMAIN-SUFFIX,${suffix}，${rule。outbound}`);
+            if (rule.domain_suffix) {
+                rule.domain_suffix.forEach(suffix => {
+                    finalConfig.push(`DOMAIN-SUFFIX,${suffix},${rule.outbound}`);
                 });
             }
 
             // 处理域名关键词规则
-            if (rule。domain_keyword) {
-                rule。domain_keyword。forEach(keyword => {
-                    finalConfig。push(`DOMAIN-KEYWORD,${keyword}，${rule。outbound}`);
+            if (rule.domain_keyword) {
+                rule.domain_keyword.forEach(keyword => {
+                    finalConfig.push(`DOMAIN-KEYWORD,${keyword},${rule.outbound}`);
                 });
             }
 
             // 处理 IP CIDR 规则
-            if (rule。ip_cidr) {
-                rule。ip_cidr。forEach(cidr => {
-                    finalConfig。push(`IP-CIDR,${cidr}，${rule。outbound},no-resolve`);
+            if (rule.ip_cidr) {
+                rule.ip_cidr.forEach(cidr => {
+                    finalConfig.push(`IP-CIDR,${cidr},${rule.outbound},no-resolve`);
                 });
             }
         });
 
         // 添加最终规则
-        finalConfig。push('FINAL,🐟 漏网之鱼');
+        finalConfig.push('FINAL,🐟 漏网之鱼');
 
-        return finalConfig。join('\n');
+        return finalConfig.join('\n');
     }
 
     getCurrentUrl() {
         try {
             // 如果在 Workers 环境中运行
-            if (typeof self !== 'undefined' && self。location) {
-                return self。location。href;
+            if (typeof self !== 'undefined' && self.location) {
+                return self.location.href;
             }
             return null;
         } catch (error) {
-            console。error('Error getting current URL:'， error);
+            console.error('Error getting current URL:', error);
             return null;
         }
     }
