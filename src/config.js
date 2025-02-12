@@ -380,13 +380,13 @@ export const SING_BOX_CONFIG = {
 		{ type: 'dns', tag: 'dns-out' }
 	]，
 	route: {
-		"rule_set": [
-            {
-                "tag": "geosite-geolocation-!cn"，
-                "type": "local"，
-                "format": "binary"，
-                "path": "geosite-geolocation-!cn.srs"
-            }
+		rule_set: [
+			{
+				标签: "geosite-geolocation-!cn"，
+				type: "local"，
+				format: "binary"，
+				path: "geosite-geolocation-!cn.srs"
+			}
 		]，
 		rules: [
 			{
