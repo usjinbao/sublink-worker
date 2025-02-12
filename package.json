@@ -1,20 +1,20 @@
 {
-  "name": "sublink-plus"，
-  "version": "0.0.1"，
-  "private": true，
+  "name": "sublink-plus",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "deploy": "wrangler deploy"，
-    "dev": "wrangler dev"，
-    "start": "wrangler dev"，
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
     "test": "vitest"
-  }，
+  },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.4.5"，
-    "vitest": "1.5.0"，
+    "@cloudflare/vitest-pool-workers": "^0.4.5",
+    "vitest": "1.5.0",
     "wrangler": "^3.60.3"
-  }，
+  },
   "dependencies": {
-    "js-yaml": "^4.1.0"，
+    "js-yaml": "^4.1.0",
     "sublink-plus": "file:"
   }
 }
