@@ -23,7 +23,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'geoip-maxmind-url': 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb',
                 'ipv6': false,
                 'show-error-page-for-reject': true,
-                'dns-server': '119.29.29.29, 180.184.1.1, 223.5.5.5, system',
+                'dns-server': '223.5.5.5, 119.29.29.29, 180.184.1.1, system',
                 'encrypted-dns-server': 'https://223.5.5.5/dns-query',
                 'exclude-simple-hostnames': true,
                 'read-etc-hosts': true,
@@ -220,7 +220,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
                 );
             }
         });
@@ -229,14 +229,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
                 );
             });
         }
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
         );
     }
 
@@ -364,3 +364,4 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             return null;
         }
     }
+}
