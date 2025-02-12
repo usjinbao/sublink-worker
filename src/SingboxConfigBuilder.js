@@ -80,7 +80,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
             if (outbound !== '🚀 节点选择') {
                 this.config.outbounds.push({
                     type: "selector",
-                    标签: outbound,
+                    标签: outbound，
                     outbounds: ['🚀 节点选择', ...proxyList]
                 });
             } else {
@@ -104,38 +104,38 @@ export class ConfigBuilder extends BaseConfigBuilder {
 
         this。config。outbounds。push({
             type: "selector"，
-            标签: "🐟 漏网之鱼",
+            标签: "🐟 漏网之鱼"，
             outbounds: ['🚀 节点选择', ...proxyList]
         });
     }
 
     formatConfig() {
-        const rules = generateRules(this.selectedRules, this.customRules, this.pin);
-        const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
+        const rules = generateRules(this。selectedRules， this。customRules， this。pin);
+        const { site_rule_sets， ip_rule_sets } = generateRuleSets(this。selectedRules，this。customRules);
 
-        this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
+        this。config。route。rule_set = [...site_rule_sets, ...ip_rule_sets];
 
-        this.config.route.rules = rules.map(rule => ({
+        this。config。route。rules = rules。map(rule => ({
             rule_set: [
-              ...(rule.site_rules.length > 0 && rule.site_rules[0] !== '' ? rule.site_rules : []),
-              ...(rule.ip_rules.filter(ip => ip.trim() !== '').map(ip => `${ip}-ip`))
-            ],
-            domain_suffix: rule.domain_suffix,
-            domain_keyword: rule.domain_keyword,
-            ip_cidr: rule.ip_cidr,
-            protocol: rule.protocol,
-            outbound: rule.outbound
+              ...(rule。site_rules。length > 0 && rule。site_rules[0] !== '' ? rule。site_rules : [])，
+              ...(rule。ip_rules。filter(ip => ip。trim() !== '')。map(ip => `${ip}-ip`))
+            ]，
+            domain_suffix: rule。domain_suffix，
+            domain_keyword: rule。domain_keyword，
+            ip_cidr: rule。ip_cidr，
+            protocol: rule。protocol，
+            outbound: rule。outbound
         }));
         // Add any default rules that should always be present
-        this.config.route.rules.unshift(
-            { protocol: 'dns', outbound: 'dns-out' },
-            { clash_mode: 'direct', outbound: 'DIRECT' },
-            { clash_mode: 'global', outbound: 'GLOBAL' }
+        this。config。route。rules。unshift(
+            { protocol: 'dns'， outbound: 'dns-out' }，
+            { clash_mode: 'direct'， outbound: 'DIRECT' }，
+            { clash_mode: 'global'， outbound: 'GLOBAL' }
         );
 
-        this.config.route.auto_detect_interface = true;
-        this.config.route.final = '🐟 漏网之鱼';
+        this。config。route。auto_detect_interface = true;
+        this。config。route。final = '🐟 漏网之鱼';
 
-        return this.config;
+        return this。config;
     }
 }
