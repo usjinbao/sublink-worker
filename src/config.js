@@ -378,15 +378,15 @@ export const SING_BOX_CONFIG = {
 		{ type: 'direct', tag: 'DIRECT' },
 		{ type: 'block', tag: 'REJECT' },
 		{ type: 'dns', tag: 'dns-out' }
-	]，
-	route: {
-		rule_set: [
-			{
-				标签: "geosite-geolocation-!cn"，
-				type: "local"，
-				format: "binary"，
-				path: "geosite-geolocation-!cn.srs"
-			}
+	],
+	route : {
+		"rule_set": [
+            {
+                "tag": "geosite-geolocation-!cn"，
+                "type": "local"，
+                "format": "binary"，
+                "path": "geosite-geolocation-!cn.srs"
+            }
 		]，
 		rules: [
 			{
@@ -419,13 +419,16 @@ export const CLASH_CONFIG = {
 		'respect-rules': true，
 		'enhanced-mode': 'fake-ip'，
 		nameserver: [
+			'https://120.53.53.53/dns-query'，
 			'https://223.5.5.5/dns-query'
 		]，
 		'proxy-server-nameserver': [
+			'https://120.53.53.53/dns-query'，
 			'https://223.5.5.5/dns-query'
 		]，
 		'nameserver-policy': {
 			'geosite:cn,private': [
+				'https://120.53.53.53/dns-query'，
 				'https://223.5.5.5/dns-query'
 			]，
 			'geosite:geolocation-!cn': [
