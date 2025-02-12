@@ -217,6 +217,15 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 );
             }
         });
+
+        // 添加自定义规则组
+        if (Array.isArray(this.customRules)) {
+            this.customRules.forEach(rule => {
+                this.config['proxy-groups'].push(
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', ...proxyNames])
+                );
+            });
+        }
     }
 
     formatConfig() {
