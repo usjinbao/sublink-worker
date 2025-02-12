@@ -178,8 +178,8 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         // 创建策略组配置生成器
         const createProxyGroup = (name, type, options = [], extraConfig = '') => {
-            const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT-DROP'];
-            const allOptions = [...baseOptions, ...options];
+            const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT'];
+            const allOptions = [...options];  // 移除 baseOptions 的合并，让传入的 options 完全控制选项列表
             return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
         };
 
@@ -220,7 +220,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
                 );
             }
         });
@@ -229,14 +229,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
                 );
             });
         }
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', 'proxyNames'])
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
         );
     }
 
