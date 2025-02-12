@@ -188,7 +188,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 return {
                     name: proxy.tag,
                     type: proxy.type,
-                    server: proxy.server,
+                    server: proxy。server，
                     port: proxy。server_port，
                     password: proxy。password，
                     auth: proxy。auth，
