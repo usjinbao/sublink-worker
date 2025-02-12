@@ -1,21 +1,21 @@
-import { SING_BOX_CONFIG, generateRuleSets, generateRules, getOutbounds, PREDEFINED_RULE_SETS} from './config.js';
+import { SING_BOX_CONFIG， generateRuleSets， generateRules， getOutbounds， PREDEFINED_RULE_SETS} from './config.js';
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
 import { DeepCopy } from './utils.js';
 
 export class ConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, pin, baseConfig) {
+    constructor(inputString， selectedRules， customRules， pin， baseConfig) {
         if (baseConfig === undefined) {
             baseConfig = SING_BOX_CONFIG
         }
-        super(inputString, baseConfig);
-        this.selectedRules = selectedRules;
-        this.customRules = customRules;
-        this.pin = pin;
+        super(inputString， baseConfig);
+        this。selectedRules = selectedRules;
+        this。customRules = customRules;
+        this。pin = pin;
     }
 
     addCustomItems(customItems) {
-        const validItems = customItems.filter(item => item != null);
-        this.config.outbounds.push(...validItems);
+        const validItems = customItems。filter(item => item != null);
+        this。config。outbounds。push(...validItems);
     }
 
     addSelectors() {
