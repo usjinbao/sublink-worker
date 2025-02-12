@@ -185,7 +185,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             // 添加负载均衡策略组
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=60, persistent=1')
+                    ', url=http://www.google.com/generate_204, interval=60')
             );
             
             this.config['proxy-groups'].push(
