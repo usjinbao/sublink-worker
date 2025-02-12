@@ -10,11 +10,6 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'wifi-access-socks5-port': 6153,
                 'http-listen': '127.0.0.1:6152',
                 'socks5-listen': '127.0.0.1:6153',
-                // 添加全局连接参数 超时2秒 重试次数6次，重试间隔1s
-                'connect-timeout': 1,
-                'retry-count': 5,
-                'retry-interval': 1,
-                // 其他现有配置保持不变
                 'allow-hotspot-access': false,
                 'skip-proxy': '127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,100.64.0.0/10,17.0.0.0/8,localhost,*.local,*.crashlytics.com,seed-sequoia.siri.apple.com,sequoia.apple.com',
                 'test-timeout': 5,
@@ -23,7 +18,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'geoip-maxmind-url': 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb',
                 'ipv6': false,
                 'show-error-page-for-reject': true,
-                'dns-server': '223.5.5.5, 119.29.29.29, 180.184.1.1, system',
+                'dns-server': '119.29.29.29, 180.184.1.1, 223.5.5.5, system',
                 'encrypted-dns-server': 'https://223.5.5.5/dns-query',
                 'exclude-simple-hostnames': true,
                 'read-etc-hosts': true,
@@ -178,22 +173,13 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         // 创建策略组配置生成器
         const createProxyGroup = (name, type, options = [], extraConfig = '') => {
-            const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT'];
-            const allOptions = [...options];  // 移除 baseOptions 的合并，让传入的 options 完全控制选项列表
+            const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT-DROP'];
+            const allOptions = [...baseOptions, ...options];
             return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
         };
 
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
 
-        // 添加节点选择策略组（包含负载均衡组）
-        const nodeSelectOptions = highSpeedProxies.length > 0 ? 
-            ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚡ 自动选择', ...proxyNames] : 
-            ['⚡ 自动选择', ...proxyNames];
-        
-        this.config['proxy-groups'].push(
-            createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
-        );
-        
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
             // 添加负载均衡策略组
@@ -209,18 +195,25 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         }
 
         // 添加自动选择策略组
-        
         this.config['proxy-groups'].push(
             createProxyGroup('⚡ 自动选择', 'url-test', proxyNames, 
                 ', url=http://www.gstatic.com/generate_204, interval=300')
         );
 
+        // 添加节点选择策略组（包含负载均衡组）
+        const nodeSelectOptions = highSpeedProxies.length > 0 ? 
+            ['⚖️ 负载-顺序', '⚖️ 负载-主机', '⚡ 自动选择', ...proxyNames] : 
+            ['⚡ 自动选择', ...proxyNames];
+        
+        this.config['proxy-groups'].push(
+            createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
+        );
 
         // 添加其他策略组
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择'])
                 );
             }
         });
@@ -229,14 +222,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择'])
                 );
             });
         }
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择'])
         );
     }
 
@@ -306,7 +299,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                         case 'telegram':
                             // Telegram 相关域名
                             finalConfig.push(`DOMAIN-SUFFIX,telegram.org,${rule.outbound}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,telegram.me,${rule.outbound}`);
+                            finalConfig。push(`DOMAIN-SUFFIX,telegram.me,${rule。outbound}`);
                             finalConfig。push(`DOMAIN-SUFFIX,t.me,${rule。outbound}`);
                             finalConfig。push(`DOMAIN-KEYWORD,telegram,${rule。outbound}`);
                             break;
