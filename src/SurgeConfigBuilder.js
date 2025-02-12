@@ -217,6 +217,20 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 );
             }
         });
+
+        // 添加自定义规则组
+        if (Array.isArray(this.customRules)) {
+            this.customRules.forEach(rule => {
+                this.config['proxy-groups'].push(
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择'])
+                );
+            });
+        }
+
+        // 添加漏网之鱼策略组
+        this.config['proxy-groups'].push(
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择'])
+        );
     }
 
     formatConfig() {
