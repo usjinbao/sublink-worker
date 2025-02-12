@@ -118,7 +118,7 @@ export const UNIFIED_RULES = [
 
 export const PREDEFINED_RULE_SETS = {
 	minimal: ['Location:CN', 'Private', 'Non-China'],
-	balanced: ['Location:CN', 'Private', 'Non-China', 'Google', 'Youtube', 'AI Services', 'Telegram'],
+	balanced: ['Ad Block','Location:CN', 'Private', 'Non-China', 'Streaming', 'Youtube', 'AI Services', 'Telegram'],
 	comprehensive: UNIFIED_RULES.map(rule => rule.name)
   };
   
@@ -387,56 +387,61 @@ export const SING_BOX_CONFIG = {
                 "format": "binary",
                 "path": "geosite-geolocation-!cn.srs"
             }
-		],
+		]，
 		rules: [
 			{
-				"outbound": "any",
+				"outbound": "any"，
 				"server": "dns_resolver"
 			}
 		]
-	},
+	}，
 	experimental: {
 		cache_file: {
-			enabled: true,
+			enabled: true，
 			store_fakeip: true
-		},
+		}，
 		clash_api: {
-			external_controller: '127.0.0.1:9090',
+			external_controller: '127.0.0.1:9090'，
 			external_ui: 'dashboard'
-		}
+		}，
+		// 将原来 global 中的连接参数移到这里
+		tcp_connect_timeout: "1s"，
+		tcp_retry: 5，
+		tcp_retry_interval: "1s"，
 	}
 };
 
 export const CLASH_CONFIG = {
-	port: 7890,
-	'socks-port': 7891,
-	'allow-lan': false,
-	mode: 'Rule',
-	'log-level': 'info',
+	port: 7890，
+	'socks-port': 7891，
+	'allow-lan': false，
+	mode: 'Rule'，
+	'log-level': 'info'，
+    // 全局连接参数 超时时间，重试次数 重试间隔
+    'tcp-conn-timeout': 1，
+    'retry': 5，
+    'retry-interval': 1，
 	dns: {
-		enable: true,
-		ipv6: true,
-		'respect-rules': true,
-		'enhanced-mode': 'fake-ip',
+		enable: true，
+		ipv6: true，
+		'respect-rules': true，
+		'enhanced-mode': 'fake-ip'，
 		nameserver: [
-			'https://120.53.53.53/dns-query',
 			'https://223.5.5.5/dns-query'
-		],
+		]，
 		'proxy-server-nameserver': [
-			'https://120.53.53.53/dns-query',
 			'https://223.5.5.5/dns-query'
-		],
+		]，
 		'nameserver-policy': {
 			'geosite:cn,private': [
-				'https://120.53.53.53/dns-query',
 				'https://223.5.5.5/dns-query'
-			],
+			]，
 			'geosite:geolocation-!cn': [
-				'https://dns.cloudflare.com/dns-query',
+				'https://dns.cloudflare.com/dns-query'，
 				'https://dns.google/dns-query'
 			]
 		}
-	},
-	proxies: [],
-	'proxy-groups': [],
+	}，
+	proxies: []，
+	'proxy-groups': []，
 };
