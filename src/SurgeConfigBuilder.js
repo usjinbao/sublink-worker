@@ -213,7 +213,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', ...proxyNames])
+                    createProxyGroup(outbound, 'select', nodeSelectOptions)
                 );
             }
         });
@@ -222,14 +222,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', ...proxyNames])
+                    createProxyGroup(rule.name, 'select', nodeSelectOptions)
                 );
             });
         }
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', ...proxyNames])
+            createProxyGroup('🐟 漏网之鱼', 'select', nodeSelectOptions)
         );
     }
 
