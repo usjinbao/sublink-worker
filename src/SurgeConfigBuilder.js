@@ -220,7 +220,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', ...proxyNames])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
                 );
             }
         });
@@ -229,14 +229,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT',, ...proxyNames])
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
                 );
             });
         }
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT',, ...proxyNames])
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', 'DIRECT', 'REJECT', proxyNames])
         );
     }
 
@@ -308,7 +308,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                             finalConfig.push(`DOMAIN-SUFFIX,telegram.org,${rule.outbound}`);
                             finalConfig.push(`DOMAIN-SUFFIX,telegram.me,${rule.outbound}`);
                             finalConfig。push(`DOMAIN-SUFFIX,t.me,${rule。outbound}`);
-                            finalConfig.push(`DOMAIN-KEYWORD,telegram,${rule.outbound}`);
+                            finalConfig。push(`DOMAIN-KEYWORD,telegram,${rule。outbound}`);
                             break;
                         默认:
                             // 其他域名规则转为 DOMAIN-KEYWORD
@@ -341,27 +341,26 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             // 处理 IP CIDR 规则
             if (rule。ip_cidr) {
                 rule。ip_cidr。forEach(cidr => {
-                    finalConfig.push(`IP-CIDR,${cidr}，${rule.outbound},no-resolve`);
+                    finalConfig。push(`IP-CIDR,${cidr}，${rule。outbound},no-resolve`);
                 });
             }
         });
 
         // 添加最终规则
-        finalConfig.push('FINAL,🐟 漏网之鱼');
+        finalConfig。push('FINAL,🐟 漏网之鱼');
 
-        return finalConfig.join('\n');
+        return finalConfig。join('\n');
     }
 
     getCurrentUrl() {
         try {
             // 如果在 Workers 环境中运行
-            if (typeof self !== 'undefined' && self.location) {
-                return self.location.href;
+            if (typeof self !== 'undefined' && self。location) {
+                return self。location。href;
             }
             return null;
         } catch (error) {
-            console.error('Error getting current URL:', error);
+            console。error('Error getting current URL:'， error);
             return null;
         }
     }
-}
