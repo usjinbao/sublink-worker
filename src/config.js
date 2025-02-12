@@ -379,7 +379,7 @@ export const SING_BOX_CONFIG = {
 		{ type: 'block', tag: 'REJECT' },
 		{ type: 'dns', tag: 'dns-out' }
 	]，
-	route : {
+	route: {
 		"rule_set": [
             {
                 "tag": "geosite-geolocation-!cn"，
