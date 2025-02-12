@@ -209,23 +209,14 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             createProxyGroup('🚀 节点选择', 'select', nodeSelectOptions)
         );
 
-        // 添加其他策略组，如果需要每个组后面都有节点就在这里加上'🚀 节点选择', ...proxyNames
+        // 添加其他策略组
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', ...proxyNames])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择'])
                 );
             }
         });
-
-        // 添加自定义规则组
-        if (Array.isArray(this.customRules)) {
-            this.customRules.forEach(rule => {
-                this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', ...proxyNames])
-                );
-            });
-        }
     }
 
     formatConfig() {
