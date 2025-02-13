@@ -21,7 +21,6 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'dns-server': '223.5.5.5, 223.6.6.6, 8.8.8.8, system',
                 'encrypted-dns-server': 'https://223.5.5.5/dns-query, https://dns.alidns.com/dns-query, https://1.12.12.12/dns-query',
                 'fallback-dns': 'https://dns.google/dns-query, https://cloudflare-dns.com/dns-query',
-                'hijack-dns': '[::]:53, 0.0.0.0:53',
                 'exclude-simple-hostnames': true,
                 'read-etc-hosts': true,
                 'always-real-ip': '*.msftconnecttest.com, *.msftncsi.com, *.srv.nintendo.net, *.stun.playstation.net, xbox.*.microsoft.com, *.xboxlive.com, *.logon.battlenet.com.cn, *.logon.battle.net, stun.l.google.com, easy-login.10099.com.cn,*-update.xoyocdn.com, *.prod.cloud.netflix.com, appboot.netflix.com, *-appboot.netflix.com',
