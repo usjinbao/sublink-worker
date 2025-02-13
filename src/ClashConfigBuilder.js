@@ -196,6 +196,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     sni: proxy.sni,
                     udp: proxy.udp,
                     alpn: proxy.tls.alpn,
+                    'fast-open': true,
                     'port-range': proxy.portRange,
                     'jump-policy': proxy.portRange ? 'random' : undefined,
                     'jump-interval': proxy.portRange ? 180 : undefined,
