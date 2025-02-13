@@ -15,6 +15,10 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'test-timeout': 5,
                 'proxy-test-url': 'http://cp.cloudflare.com/generate_204',
                 'internet-test-url': 'http://www.apple.com/library/test/success.html',
+                'timeout': 2,               // 添加：全局超时时间（秒）
+                'connect-timeout': 6,        // 添加：连接超时时间（秒）
+                'retry-interval': 1,         // 添加：重试间隔（秒）
+                'max-retries': 3,           // 添加：最大重试次数
                 'geoip-maxmind-url': 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb',
                 'ipv6': false,
                 'show-error-page-for-reject': true,
@@ -121,6 +125,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 if (proxy.portRange) {
                     surgeProxy += `, port-range=${proxy.portRange}`;
                 }
+                surgeProxy += ', fast-open=true';  // 添加快速打开参数
                 break;
             case 'tuic':
                 surgeProxy = `${proxy.tag} = tuic, ${proxy.server}, ${proxy.server_port}, password=${proxy.password}, uuid=${proxy.uuid}`;
@@ -186,7 +191,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             // 添加负载均衡策略组
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=280, persistent=1')
+                    ', url=http://www.google.com/generate_204, interval=280')
             );
             
             this.config['proxy-groups'].push(
