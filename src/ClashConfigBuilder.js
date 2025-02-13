@@ -50,7 +50,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 strategy: 'round-robin',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
-                interval: 10
+                interval: 280
             });
         
             this.config['proxy-groups'].push({
@@ -59,7 +59,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 strategy: 'consistent-hashing',
                 proxies: DeepCopy(highSpeedProxies),
                 url: 'http://www.google.com/generate_204',
-                interval: 10
+                interval: 280
             });
     
             this.config['proxy-groups'].push({
@@ -195,9 +195,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     'skip-cert-verify': proxy.skipCertVerify,
                     sni: proxy.sni,
                     udp: proxy.udp,
+                    alpn: proxy.tls.alpn,
                     'port-range': proxy.portRange,
                     'jump-policy': proxy.portRange ? 'random' : undefined,
-                    'jump-interval': proxy.portRange ? 30 : undefined,
+                    'jump-interval': proxy.portRange ? 180 : undefined,
                 };
 			case 'trojan':
 				return {
