@@ -18,8 +18,10 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'geoip-maxmind-url': 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb',
                 'ipv6': false,
                 'show-error-page-for-reject': true,
-                'dns-server': '223.5.5.5, 180.184.1.1, 119.29.29.29, system',
-                'encrypted-dns-server': 'https://223.5.5.5/dns-query',
+                'dns-server': '223.5.5.5, 223.6.6.6, 8.8.8.8, system',
+                'encrypted-dns-server': 'https://223.5.5.5/dns-query, https://dns.alidns.com/dns-query, https://1.12.12.12/dns-query',
+                'fallback-dns': 'https://dns.google/dns-query, https://cloudflare-dns.com/dns-query',
+                'hijack-dns': '[::]:53, 0.0.0.0:53',
                 'exclude-simple-hostnames': true,
                 'read-etc-hosts': true,
                 'always-real-ip': '*.msftconnecttest.com, *.msftncsi.com, *.srv.nintendo.net, *.stun.playstation.net, xbox.*.microsoft.com, *.xboxlive.com, *.logon.battlenet.com.cn, *.logon.battle.net, stun.l.google.com, easy-login.10099.com.cn,*-update.xoyocdn.com, *.prod.cloud.netflix.com, appboot.netflix.com, *-appboot.netflix.com',
@@ -185,12 +187,12 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             // 添加负载均衡策略组
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=60')
+                    ', url=http://www.google.com/generate_204, interval=280, persistent=1')
             );
             
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-主机', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=60, persistent=1, hash=consistent')
+                    ', url=http://www.google.com/generate_204, interval=280, persistent=1, hash=consistent')
             );
         }
 
