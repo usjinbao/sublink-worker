@@ -163,7 +163,7 @@ export class ProxyParser {
             const tls = {
               enabled: true,
               server_name: params.sni,
-              insecure: true,
+              insecure: params.insecure === '0' ? false : true,  // 没有 insecure 参数或值不为 0 时都为 true
               alpn: ["h3"],
             };
         
