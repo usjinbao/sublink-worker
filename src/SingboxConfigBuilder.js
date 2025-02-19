@@ -42,7 +42,8 @@ export class ConfigBuilder extends BaseConfigBuilder {
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
-                type: "urltest",
+                type: "load_balance",
+                strategy: 'round_robin',
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
                 url: "http://www.google.com/generate_204",
@@ -52,7 +53,8 @@ export class ConfigBuilder extends BaseConfigBuilder {
 
             // 添加固定节点负载均衡（模拟 consistent-hashing）
             this.config.outbounds.unshift({
-                type: "urltest",
+                type: "load_balance",
+                strategy: 'consistent_hashing',
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
                 url: "http://www.google.com/generate_204",
