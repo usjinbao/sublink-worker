@@ -2,14 +2,15 @@ import { SING_BOX_CONFIG, generateRuleSets, generateRules, getOutbounds, PREDEFI
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
 import { DeepCopy } from './utils.js';
 
-export class SingboxConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig) {
+export class ConfigBuilder extends BaseConfigBuilder {
+    constructor(inputString, selectedRules, customRules, pin, baseConfig) {
         if (baseConfig === undefined) {
             baseConfig = SING_BOX_CONFIG
         }
         super(inputString, baseConfig);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
+        this.pin = pin;
     }
 
     addCustomItems(customItems) {
@@ -37,53 +38,45 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
             name.includes('优选')
         );
 
-        // 只有当存在符合条件的节点时才添加负载均衡组
+        // 只有当存在符合关键词的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
                 type: "loadbalance",
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
-                strategy: {
-                    type: "round_robin"
-                },
-                health_check: {
-                    enable: true,
-                    url: "http://www.google.com/generate_204",
-                    interval: "180"
+                strategy: "round-robin",
+                check: {
+                    interval: "300s",
+                    url: "http://www.google.com/generate_204"
                 }
             });
 
-            // 添加固定节点负载均衡（一致性哈希）
+            // 添加固定节点负载均衡（模拟 consistent-hashing）
             this.config.outbounds.unshift({
                 type: "loadbalance",
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
-                strategy: {
-                    type: "consistent_hash"
-                },
-                health_check: {
-                    enable: true,
-                    url: "http://www.google.com/generate_204",
-                    interval: "180"
+                strategy: "consistent-hash",
+                check: {
+                    interval: "300s",
+                    url: "http://www.google.com/generate_204"
                 }
-            });
-
-            // 添加自动选择组
-            this.config.outbounds.unshift({
-                type: "urltest",
-                tag: "⚡ 自动选择",
-                outbounds: DeepCopy(proxyList),
-                url: "http://www.google.com/generate_204",
-                interval: "300s"
             });
         }
 
-        // 为节点选择组创建完整代理列表（包含负载均衡）
-        const nodeSelectProxies = highSpeedProxies.length > 0 ? 
-            ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList] : 
-            ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        // 添加自动选择组
+        this.config.outbounds.unshift({
+            type: "urltest",
+            tag: "⚡ 自动选择",
+            outbounds: DeepCopy(proxyList),
+            url: "http://www.google.com/generate_204",
+            interval: "300s"
+        });
 
+        // 更新代理列表
+        const balancerGroups = highSpeedProxies.length > 0 ? ['⚖️ 负载-顺序', '⚖️ 负载-主机'] : [];
+        proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择', ...balancerGroups);
         outbounds.unshift('🚀 节点选择','GLOBAL');
         
         outbounds.forEach(outbound => {
@@ -91,17 +84,16 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
                 this.config.outbounds.push({
                     type: "selector",
                     tag: outbound,
-                    outbounds: ['🚀 节点选择', ...nodeSelectProxies]
+                    outbounds: ['🚀 节点选择', ...proxyList]
                 });
             } else {
                 this.config.outbounds.unshift({
                     type: "selector",
                     tag: outbound,
-                    outbounds: nodeSelectProxies
+                    outbounds: proxyList
                 });
             }
         });
-
 
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
@@ -121,7 +113,7 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
     }
 
     formatConfig() {
-        const rules = generateRules(this.selectedRules, this.customRules);
+        const rules = generateRules(this.selectedRules, this.customRules, this.pin);
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
 
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
