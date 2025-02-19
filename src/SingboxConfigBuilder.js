@@ -2,15 +2,14 @@ import { SING_BOX_CONFIG, generateRuleSets, generateRules, getOutbounds, PREDEFI
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
 import { DeepCopy } from './utils.js';
 
-export class ConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, pin, baseConfig) {
+export class SingboxConfigBuilder extends BaseConfigBuilder {
+    constructor(inputString, selectedRules, customRules, baseConfig) {
         if (baseConfig === undefined) {
             baseConfig = SING_BOX_CONFIG
         }
         super(inputString, baseConfig);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
-        this.pin = pin;
     }
 
     addCustomItems(customItems) {
@@ -30,10 +29,10 @@ export class ConfigBuilder extends BaseConfigBuilder {
 
         const proxyList = this.config.outbounds.filter(outbound => outbound?.server != undefined).map(outbound => outbound.tag);
         
-        // 创建节点关键词 包含以下关键词的节点才会加入到负载均衡组
+        // 创建高速节点列表（名称包含特定关键字的节点）
         const highSpeedProxies = proxyList.filter(name => 
             name.includes('F') || 
-            name.includes('负载') ||
+            name.includes('负载') || 
             name.includes('高速') ||
             name.includes('优选')
         );
@@ -81,27 +80,28 @@ export class ConfigBuilder extends BaseConfigBuilder {
         }
 
         // 为节点选择组创建完整代理列表（包含负载均衡）
-        const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
-        // 为其他选择组创建基础代理列表（不包含负载均衡）
-        const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
-    
-        outbounds.unshift('🚀 节点选择');
+        const nodeSelectProxies = highSpeedProxies.length > 0 ? 
+            ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList] : 
+            ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+
+        outbounds.unshift('🚀 节点选择','GLOBAL');
         
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
-                this.config['proxy-groups'].push({
-                    type: "select",
-                    name: outbound,
-                    proxies: ['🚀 节点选择', ...basicProxies]
+                this.config.outbounds.push({
+                    type: "selector",
+                    tag: outbound,
+                    outbounds: ['🚀 节点选择', ...nodeSelectProxies]
                 });
             } else {
-                this.config['proxy-groups'].unshift({
-                    type: "select",
-                    name: outbound,
-                    proxies: nodeSelectProxies
+                this.config.outbounds.unshift({
+                    type: "selector",
+                    tag: outbound,
+                    outbounds: nodeSelectProxies
                 });
             }
         });
+
 
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
@@ -121,7 +121,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
     }
 
     formatConfig() {
-        const rules = generateRules(this.selectedRules, this.customRules, this.pin);
+        const rules = generateRules(this.selectedRules, this.customRules);
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
 
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
