@@ -40,7 +40,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
         this.config.outbounds.unshift({
             type: "loadbalance",
             tag: "⚖️ 负载-顺序",
-            outbounds: DeepCopy(highSpeedProxies.length > 0 ? highSpeedProxies : proxyList),
+            outbounds: DeepCopy(highSpeedProxies),
             strategy: {
                 type: "round_robin"
             },
@@ -55,7 +55,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
         this.config.outbounds.unshift({
             type: "loadbalance",
             tag: "⚖️ 负载-主机",
-            outbounds: DeepCopy(highSpeedProxies.length > 0 ? highSpeedProxies : proxyList),
+            outbounds: DeepCopy(highSpeedProxies),
             strategy: {
                 type: "consistent_hash"
             },
@@ -76,7 +76,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
         });
 
         // 更新代理列表
-        const balancerGroups = highSpeedProxies.length > 0 ? ['⚖️ 负载-顺序', '⚖️ 负载-主机'] : [];
+        const balancerGroups = ['⚖️ 负载-顺序', '⚖️ 负载-主机'];
         proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择', ...balancerGroups);
         outbounds.unshift('🚀 节点选择','GLOBAL');
         
