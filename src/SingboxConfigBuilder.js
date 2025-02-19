@@ -46,7 +46,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
                 strategy: {
-                    type: "round-robin"
+                    type: "round_robin"
                 },
                 health_check: {
                     enable: true,
@@ -61,7 +61,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
                 strategy: {
-                    type: "consistent-hash"
+                    type: "consistent_hash"
                 },
                 health_check: {
                     enable: true,
