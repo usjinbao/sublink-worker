@@ -33,65 +33,72 @@ export class ConfigBuilder extends BaseConfigBuilder {
         // 创建节点关键词 包含以下关键词的节点才会加入到负载均衡组
         const highSpeedProxies = proxyList.filter(name => 
             name.includes('F') || 
-            name.includes('负载')
+            name.includes('负载') ||
+            name.includes('高速') ||
+            name.includes('优选')
         );
 
-        // 添加轮询模式负载均衡
-        this.config.outbounds.unshift({
-            type: "loadbalance",
-            tag: "⚖️ 负载-顺序",
-            outbounds: DeepCopy(highSpeedProxies),
-            strategy: {
-                type: "round_robin"
-            },
-            health_check: {
-                enable: true,
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            // 添加轮询模式负载均衡
+            this.config.outbounds.unshift({
+                type: "loadbalance",
+                tag: "⚖️ 负载-顺序",
+                outbounds: DeepCopy(highSpeedProxies),
+                strategy: {
+                    type: "round_robin"
+                },
+                health_check: {
+                    enable: true,
+                    url: "http://www.google.com/generate_204",
+                    interval: "180"
+                }
+            });
+
+            // 添加固定节点负载均衡（一致性哈希）
+            this.config.outbounds.unshift({
+                type: "loadbalance",
+                tag: "⚖️ 负载-主机",
+                outbounds: DeepCopy(highSpeedProxies),
+                strategy: {
+                    type: "consistent_hash"
+                },
+                health_check: {
+                    enable: true,
+                    url: "http://www.google.com/generate_204",
+                    interval: "180"
+                }
+            });
+
+            // 添加自动选择组
+            this.config.outbounds.unshift({
+                type: "urltest",
+                tag: "⚡ 自动选择",
+                outbounds: DeepCopy(proxyList),
                 url: "http://www.google.com/generate_204",
-                interval: "180"
-            }
-        });
+                interval: "300s"
+            });
+        }
 
-        // 添加固定节点负载均衡（一致性哈希）
-        this.config.outbounds.unshift({
-            type: "loadbalance",
-            tag: "⚖️ 负载-主机",
-            outbounds: DeepCopy(highSpeedProxies),
-            strategy: {
-                type: "consistent_hash"
-            },
-            health_check: {
-                enable: true,
-                url: "http://www.google.com/generate_204",
-                interval: "180"
-            }
-        });
-
-        // 添加自动选择组
-        this.config.outbounds.unshift({
-            type: "urltest",
-            tag: "⚡ 自动选择",
-            outbounds: DeepCopy(proxyList),
-            url: "http://www.google.com/generate_204",
-            interval: "300s"
-        });
-
-        // 更新代理列表
-        const balancerGroups = ['⚖️ 负载-顺序', '⚖️ 负载-主机'];
-        proxyList.unshift('DIRECT', 'REJECT', '⚡ 自动选择', ...balancerGroups);
-        outbounds.unshift('🚀 节点选择','GLOBAL');
+        // 为节点选择组创建完整代理列表（包含负载均衡）
+        const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        // 为其他选择组创建基础代理列表（不包含负载均衡）
+        const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+    
+        outbounds.unshift('🚀 节点选择');
         
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
-                this.config.outbounds.push({
-                    type: "selector",
-                    tag: outbound,
-                    outbounds: ['🚀 节点选择', ...proxyList]
+                this.config['proxy-groups'].push({
+                    type: "select",
+                    name: outbound,
+                    proxies: ['🚀 节点选择', ...basicProxies]
                 });
             } else {
-                this.config.outbounds.unshift({
-                    type: "selector",
-                    tag: outbound,
-                    outbounds: proxyList
+                this.config['proxy-groups'].unshift({
+                    type: "select",
+                    name: outbound,
+                    proxies: nodeSelectProxies
                 });
             }
         });
