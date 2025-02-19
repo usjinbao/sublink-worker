@@ -51,7 +51,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 health_check: {
                     enable: true,
                     url: "http://www.google.com/generate_204",
-                    interval: "180s"
+                    interval: "180"
                 }
             });
 
@@ -66,7 +66,7 @@ export class ConfigBuilder extends BaseConfigBuilder {
                 health_check: {
                     enable: true,
                     url: "http://www.google.com/generate_204",
-                    interval: "180s"
+                    interval: "180"
                 }
             });
         }
