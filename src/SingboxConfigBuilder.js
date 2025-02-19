@@ -42,29 +42,31 @@ export class ConfigBuilder extends BaseConfigBuilder {
         if (highSpeedProxies.length > 0) {
             // 添加轮询模式负载均衡
             this.config.outbounds.unshift({
-                type: "selector",
+                type: "loadbalance",
                 tag: "⚖️ 负载-顺序",
                 outbounds: DeepCopy(highSpeedProxies),
-                balancer: {
-                    type: "round_robin",
-                    check: {
-                        url: "http://www.google.com/generate_204",
-                        interval: "180s"
-                    }
+                strategy: {
+                    type: "round-robin"
+                },
+                health_check: {
+                    enable: true,
+                    url: "http://www.google.com/generate_204",
+                    interval: "180s"
                 }
             });
 
             // 添加固定节点负载均衡（一致性哈希）
             this.config.outbounds.unshift({
-                type: "selector",
+                type: "loadbalance",
                 tag: "⚖️ 负载-主机",
                 outbounds: DeepCopy(highSpeedProxies),
-                balancer: {
-                    type: "consistent_hash",
-                    check: {
-                        url: "http://www.google.com/generate_204",
-                        interval: "180s"
-                    }
+                strategy: {
+                    type: "consistent-hash"
+                },
+                health_check: {
+                    enable: true,
+                    url: "http://www.google.com/generate_204",
+                    interval: "180s"
                 }
             });
         }
