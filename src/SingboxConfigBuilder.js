@@ -30,46 +30,41 @@ export class ConfigBuilder extends BaseConfigBuilder {
 
         const proxyList = this.config.outbounds.filter(outbound => outbound?.server != undefined).map(outbound => outbound.tag);
         
-        // 创建高速节点列表（名称包含特定关键字的节点）
+        // 创建节点关键词 包含以下关键词的节点才会加入到负载均衡组
         const highSpeedProxies = proxyList.filter(name => 
             name.includes('F') || 
-            name.includes('负载') || 
-            name.includes('高速') ||
-            name.includes('优选')
+            name.includes('负载')
         );
 
-        // 只有当存在符合条件的节点时才添加负载均衡组
-        if (highSpeedProxies.length > 0) {
-            // 添加轮询模式负载均衡
-            this.config.outbounds.unshift({
-                type: "loadbalance",
-                tag: "⚖️ 负载-顺序",
-                outbounds: DeepCopy(highSpeedProxies),
-                strategy: {
-                    type: "round_robin"
-                },
-                health_check: {
-                    enable: true,
-                    url: "http://www.google.com/generate_204",
-                    interval: "180"
-                }
-            });
+        // 添加轮询模式负载均衡
+        this.config.outbounds.unshift({
+            type: "loadbalance",
+            tag: "⚖️ 负载-顺序",
+            outbounds: DeepCopy(highSpeedProxies.length > 0 ? highSpeedProxies : proxyList),
+            strategy: {
+                type: "round_robin"
+            },
+            health_check: {
+                enable: true,
+                url: "http://www.google.com/generate_204",
+                interval: "180"
+            }
+        });
 
-            // 添加固定节点负载均衡（一致性哈希）
-            this.config.outbounds.unshift({
-                type: "loadbalance",
-                tag: "⚖️ 负载-主机",
-                outbounds: DeepCopy(highSpeedProxies),
-                strategy: {
-                    type: "consistent_hash"
-                },
-                health_check: {
-                    enable: true,
-                    url: "http://www.google.com/generate_204",
-                    interval: "180"
-                }
-            });
-        }
+        // 添加固定节点负载均衡（一致性哈希）
+        this.config.outbounds.unshift({
+            type: "loadbalance",
+            tag: "⚖️ 负载-主机",
+            outbounds: DeepCopy(highSpeedProxies.length > 0 ? highSpeedProxies : proxyList),
+            strategy: {
+                type: "consistent_hash"
+            },
+            health_check: {
+                enable: true,
+                url: "http://www.google.com/generate_204",
+                interval: "180"
+            }
+        });
 
         // 添加自动选择组
         this.config.outbounds.unshift({
