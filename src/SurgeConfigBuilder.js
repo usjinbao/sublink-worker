@@ -188,10 +188,10 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
-            // 添加负载均衡策略组 persistent=1为保持连接 开启可能导致只会使用一个节点
+            // 添加负载均衡策略组 persistent=1为保持连接 0为模拟轮询开启可能导致只会使用一个节点
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=280')
+                    ', url=http://www.google.com/generate_204, interval=280, persistent=0')
             );
             
             this.config['proxy-groups'].push(
