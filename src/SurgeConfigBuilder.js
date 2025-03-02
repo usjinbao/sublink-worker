@@ -235,7 +235,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         // 添加漏网之鱼策略组
         this.config['proxy-groups'].push(
-            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择', ...proxyNames])
+            createProxyGroup('🐟 漏网之鱼', 'select', ['🚀 节点选择','⚖️ 负载-顺序', '⚖️ 负载-主机', ...proxyNames])
         );
     }
 
