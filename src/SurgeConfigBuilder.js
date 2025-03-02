@@ -15,10 +15,10 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 'test-timeout': 5,
                 'proxy-test-url': 'http://cp.cloudflare.com/generate_204',
                 'internet-test-url': 'http://www.apple.com/library/test/success.html',
-                'timeout': 2,               // 添加：全局超时时间（秒）
-                'connect-timeout': 6,        // 添加：连接超时时间（秒）
+                'timeout': 5,               // 添加：全局超时时间（秒）
+                'connect-timeout': 5,        // 添加：连接超时时间（秒）
                 'retry-interval': 1,         // 添加：重试间隔（秒）
-                'max-retries': 3,           // 添加：最大重试次数
+                'max-retries': 5,           // 添加：最大重试次数
                 'geoip-maxmind-url': 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb',
                 'ipv6': false,
                 'show-error-page-for-reject': true,
