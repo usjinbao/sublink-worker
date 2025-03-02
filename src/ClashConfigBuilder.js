@@ -73,8 +73,8 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         }
         // 为节点选择组创建完整代理列表（包含负载均衡）
         const nodeSelectProxies = ['⚖️ 负载-顺序', '⚖️ 负载-主机', 'DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
-        // 为其他选择组创建基础代理列表（不包含负载均衡）
-        const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择', ...proxyList];
+        // 为其他选择组创建基础代理列表
+        const basicProxies = ['DIRECT', 'REJECT', '⚡ 自动选择','⚖️ 负载-顺序', '⚖️ 负载-主机', ...proxyList];
     
         outbounds.unshift('🚀 节点选择');
         

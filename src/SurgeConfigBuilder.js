@@ -188,7 +188,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
         // 只有当存在符合条件的节点时才添加负载均衡组
         if (highSpeedProxies.length > 0) {
-            // 添加负载均衡策略组
+            // 添加负载均衡策略组 persistent=1为保持连接 开启可能导致只会使用一个节点
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-顺序', 'load-balance', highSpeedProxies, 
                     ', url=http://www.google.com/generate_204, interval=280')
@@ -196,7 +196,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             
             this.config['proxy-groups'].push(
                 createProxyGroup('⚖️ 负载-主机', 'load-balance', highSpeedProxies, 
-                    ', url=http://www.google.com/generate_204, interval=280, persistent=1, hash=consistent')
+                    ', url=http://www.google.com/generate_204, interval=280, hash=consistent')
             );
         }
 
@@ -219,7 +219,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         outbounds.forEach(outbound => {
             if (outbound !== '🚀 节点选择') {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(outbound, 'select', ['🚀 节点选择', ...proxyNames])
+                    createProxyGroup(outbound, 'select', ['🚀 节点选择','⚖️ 负载-顺序', '⚖️ 负载-主机', ...proxyNames])
                 );
             }
         });
@@ -228,7 +228,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
                 this.config['proxy-groups'].push(
-                    createProxyGroup(rule.name, 'select', ['🚀 节点选择', ...proxyNames])
+                    createProxyGroup(rule.name, 'select', ['🚀 节点选择','⚖️ 负载-顺序', '⚖️ 负载-主机', ...proxyNames])
                 );
             });
         }
