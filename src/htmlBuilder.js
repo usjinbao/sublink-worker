@@ -77,7 +77,7 @@ const generateForm = () => `
   <form method="POST" id="encodeForm">
     <div class="form-section">
       <div class="form-section-title">节点 URLs</div>
-      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="节点名字包含:负载,F,优选任意关键字才会自动加入到负载均衡组" rows="3"></textarea>
+      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="vmess://abcd..." rows="3"></textarea>
     </div>
 
     <div class="form-check form-switch mb-3">
