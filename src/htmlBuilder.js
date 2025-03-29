@@ -17,7 +17,7 @@ const generateHead = () => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sublink Worker是一款强大的在线订阅链接转换工具,支持V2Ray/Xray、SingBox、Clash、Surge等多种客户端，提供自定义规则和高效转换，帮助您轻松管理和优化代理节点。">
     <meta name="keywords" content="Sublink, Worker, 订阅链接, 代理, Xray, SingBox, Clash, V2Ray, Surge, 自定义规则, 在线, 订阅转换, 机场订阅, 节点管理, 节点解析">
-    <title>Sublink Worker - 轻量高效的订阅转换工具 | 支持V2Ray/Xray、SingBox、Clash、Surge</title>
+    <title>会员专用节点订阅转换工具 | 支持V2Ray/Xray、SingBox、Clash、Surge</title>
     <meta property="og:title" content="Sublink Worker - 轻量高效的订阅链接转换工具">
     <meta property="og:description" content="强大的在线订阅链接转换工具,支持多种代理协议和自定义规则">
     <meta property="og:type" content="website">
@@ -69,15 +69,15 @@ const generateGithubLink = () => `
 
 const generateCardHeader = () => `
   <div class="card-header text-center">
-    <h1 class="display-4 mb-0">Sublink Worker</h1>
+    <h1 class="display-4 mb-0">会员订阅转换器</h1>
   </div>
 `;
 
 const generateForm = () => `
   <form method="POST" id="encodeForm">
     <div class="form-section">
-      <div class="form-section-title">节点 URLs</div>
-      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="vmess://abcd..." rows="3"></textarea>
+      <div class="form-section-title">节点链接</div>
+      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="节点名包含：F 负载 等关键词才会添加到负载均衡组." rows="3"></textarea>
     </div>
 
     <div class="form-check form-switch mb-3">
