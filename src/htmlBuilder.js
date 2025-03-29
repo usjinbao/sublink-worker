@@ -15,10 +15,10 @@ const generateHead = () => `
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sublink Worker是一款强大的在线订阅链接转换工具,支持V2Ray/Xray、SingBox、Clash、Surge等多种客户端，提供自定义规则和高效转换，帮助您轻松管理和优化代理节点。">
+    <meta name="description" content="私密节点转换工具,支持V2Ray/Xray、SingBox、Clash、Surge等多种客户端，提供自定义规则和高效转换，帮助您轻松管理和优化代理节点。">
     <meta name="keywords" content="Sublink, Worker, 订阅链接, 代理, Xray, SingBox, Clash, V2Ray, Surge, 自定义规则, 在线, 订阅转换, 机场订阅, 节点管理, 节点解析">
-    <title>Sublink Worker - 轻量高效的订阅转换工具 | 支持V2Ray/Xray、SingBox、Clash、Surge</title>
-    <meta property="og:title" content="Sublink Worker - 轻量高效的订阅链接转换工具">
+    <title>私密节点转换工具 - 支持V2Ray/Xray、SingBox、Clash、Surge</title>
+    <meta property="og:title" content="私密节点转换个工具">
     <meta property="og:description" content="强大的在线订阅链接转换工具,支持多种代理协议和自定义规则">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://sublink-worker.sageer.me/">
@@ -62,7 +62,7 @@ const generateDarkModeToggle = () => `
 `;
 
 const generateGithubLink = () => `
-  <a href="https://github.com/7Sageer/sublink-worker" target="_blank" rel="noopener noreferrer" class="github-link">
+  <a href="https://www.bitwld.com" target="_blank" rel="noopener noreferrer" class="github-link">
     <i class="fab fa-github"></i>
   </a>
 `;
@@ -76,8 +76,8 @@ const generateCardHeader = () => `
 const generateForm = () => `
   <form method="POST" id="encodeForm">
     <div class="form-section">
-      <div class="form-section-title">节点 URLs</div>
-      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="vmess://abcd..." rows="3"></textarea>
+      <div class="form-section-title">节点链接</div>
+      <textarea class="form-control" id="inputTextarea" name="input" required placeholder="若节点名字包含:负载,F,优选任意关键字才会自动加入到负载均衡组" rows="3"></textarea>
     </div>
 
     <div class="form-check form-switch mb-3">
