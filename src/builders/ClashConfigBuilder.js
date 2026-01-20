@@ -8,11 +8,11 @@ import { emitClashRules, sanitizeClashProxyGroups } from './helpers/clashConfigU
 import { normalizeGroupName, findGroupIndexByName } from './helpers/groupNameUtils.js';
 
 export class ClashConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry = false, enableClashUI = false, externalController, externalUiDownloadUrl, enableLoadBalancer = false, loadBalancerConfig = '') {
+    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry = false, enableClashUI = false, externalController, externalUiDownloadUrl) {
         if (!baseConfig) {
             baseConfig = CLASH_CONFIG;
         }
-        super(inputString, baseConfig, lang, userAgent, groupByCountry, enableLoadBalancer, loadBalancerConfig);
+        super(inputString, baseConfig, lang, userAgent, groupByCountry);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
         this.countryGroupNames = [];
@@ -283,6 +283,48 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         const autoName = this.t('outboundNames.Auto Select');
         if (this.hasProxyGroup(autoName)) return;
 
+        // 创建高速节点列表（名称包含特定关键字的节点）
+        const highSpeedProxies = proxyList.filter(name => 
+            name.includes('F') || 
+            name.includes('负载') || 
+            name.includes('高速') ||
+            name.includes('优选')
+        );
+
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            // 添加负载均衡组 - 顺序策略
+            const loadBalanceRoundRobin = {
+                name: '⚖️ 负载-顺序',
+                type: 'load-balance',
+                strategy: 'round-robin',
+                proxies: deepCopy(uniqueNames(highSpeedProxies)),
+                url: 'http://www.google.com/generate_204',
+                interval: 280
+            };
+
+            // 添加负载均衡组 - 主机一致性哈希策略
+            const loadBalanceConsistentHashing = {
+                name: '⚖️ 负载-主机',
+                type: 'load-balance',
+                strategy: 'consistent-hashing',
+                proxies: deepCopy(uniqueNames(highSpeedProxies)),
+                url: 'http://www.google.com/generate_204',
+                interval: 280
+            };
+
+            // Add 'use' field if we have proxy-providers
+            const providerNames = this.getAllProviderNames();
+            if (providerNames.length > 0) {
+                loadBalanceRoundRobin.use = providerNames;
+                loadBalanceConsistentHashing.use = providerNames;
+            }
+
+            this.config['proxy-groups'].push(loadBalanceRoundRobin);
+            this.config['proxy-groups'].push(loadBalanceConsistentHashing);
+        }
+
+        // 添加自动选择组
         const group = {
             name: autoName,
             type: 'url-test',
@@ -542,56 +584,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         });
     }
 
-    // 生成负载均衡组
-    addLoadBalancerGroup() {
-        if (!this.enableLoadBalancer || this.loadBalancerProxies.length === 0) {
-            return;
-        }
-        
-        // Convert load balancer proxies to Clash format
-        const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
-            const convertedProxy = this.convertProxy(proxy);
-            return convertedProxy ? convertedProxy.name : null;
-        }).filter(Boolean);
-        
-        if (loadBalancerProxyNames.length === 0) {
-            return;
-        }
-        
-        // Add 'use' field if we have proxy-providers
-        const providerNames = this.getAllProviderNames();
-        const useProviders = providerNames.length > 0 ? { use: providerNames } : {};
-        
-        // Create two types of load balance groups
-        const loadBalanceGroups = [
-            {
-                name: '⚖️ 负载-顺序',
-                type: 'load-balance',
-                proxies: loadBalancerProxyNames,
-                url: 'https://www.gstatic.com/generate_204',
-                interval: 300,
-                lazy: false,
-                strategy: 'round-robin',
-                ...useProviders
-            },
-            {
-                name: '⚖️ 负载-主机',
-                type: 'load-balance',
-                proxies: loadBalancerProxyNames,
-                url: 'https://www.gstatic.com/generate_204',
-                interval: 300,
-                lazy: false,
-                strategy: 'consistent-hashing',
-                ...useProviders
-            }
-        ];
-        
-        // Add load balance groups to config
-        loadBalanceGroups.forEach(group => {
-            this.config['proxy-groups'].push(group);
-        });
-    }
-    
     // 生成规则
     generateRules() {
         return generateRules(this.selectedRules, this.customRules);
@@ -613,9 +605,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 ...this.generateProxyProviders()
             };
         }
-
-        // Add load balance group if enabled
-        this.addLoadBalancerGroup();
 
         // Validate proxy groups: fill empty url-test/fallback groups with all proxies
         this.validateProxyGroups();

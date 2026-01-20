@@ -5,9 +5,9 @@ import { addProxyWithDedup } from './helpers/proxyHelpers.js';
 import { buildSelectorMembers, buildNodeSelectMembers, uniqueNames } from './helpers/groupBuilder.js';
 
 export class SurgeConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry, enableClashUI = false, externalController = '', externalUiDownloadUrl = '', enableLoadBalancer = false, loadBalancerConfig = '') {
+    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry) {
         const resolvedBaseConfig = baseConfig ?? SURGE_CONFIG;
-        super(inputString, resolvedBaseConfig, lang, userAgent, groupByCountry, enableLoadBalancer, loadBalancerConfig);
+        super(inputString, resolvedBaseConfig, lang, userAgent, groupByCountry);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
         this.subscriptionUrl = null;
@@ -230,29 +230,66 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
     }
 
     buildNodeSelectOptions(proxyList = []) {
-        return buildNodeSelectMembers({
+        const baseOptions = buildNodeSelectMembers({
             proxyList,
             translator: this.t,
             groupByCountry: false,
             manualGroupName: this.manualGroupName,
             countryGroupNames: this.countryGroupNames
         });
+        // 将负载均衡组添加到节点选择组的开头
+        return ['⚖️ 负载-顺序', '⚖️ 负载-主机', ...baseOptions];
     }
 
     buildAggregatedOptions(proxyList = []) {
-        return buildSelectorMembers({
+        const baseOptions = buildSelectorMembers({
             proxyList,
             translator: this.t,
             groupByCountry: this.groupByCountry,
             manualGroupName: this.manualGroupName,
             countryGroupNames: this.countryGroupNames
         });
+        // 将负载均衡组添加到选择器组的开头
+        return ['⚖️ 负载-顺序', '⚖️ 负载-主机', ...baseOptions];
     }
 
     addAutoSelectGroup(proxyList) {
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
         const name = this.t('outboundNames.Auto Select');
         if (this.hasProxyGroup(name)) return;
+
+        // 创建高速节点列表（名称包含特定关键字的节点）
+        const highSpeedProxies = proxyList.filter(name => 
+            name.includes('F') || 
+            name.includes('负载') || 
+            name.includes('高速') ||
+            name.includes('优选')
+        );
+
+        // 只有当存在符合条件的节点时才添加负载均衡组
+        if (highSpeedProxies.length > 0) {
+            // 添加负载均衡组 - 顺序策略
+            this.config['proxy-groups'].push(
+                this.createProxyGroup(
+                    '⚖️ 负载-顺序',
+                    'load-balance',
+                    this.sanitizeOptions(highSpeedProxies),
+                    ', url=http://www.google.com/generate_204, interval=280, persistent=0'
+                )
+            );
+            
+            // 添加负载均衡组 - 主机一致性哈希策略
+            this.config['proxy-groups'].push(
+                this.createProxyGroup(
+                    '⚖️ 负载-主机',
+                    'load-balance',
+                    this.sanitizeOptions(highSpeedProxies),
+                    ', url=http://www.google.com/generate_204, interval=280, hash=consistent'
+                )
+            );
+        }
+
+        // 添加自动选择组
         this.config['proxy-groups'].push(
             this.createProxyGroup(
                 name,
@@ -296,42 +333,6 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 );
             });
         }
-    }
-
-    // 生成负载均衡组
-    addLoadBalancerGroup() {
-        if (!this.enableLoadBalancer || this.loadBalancerProxies.length === 0) {
-            return;
-        }
-        
-        // Convert load balancer proxies to Surge format
-        const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
-            const convertedProxy = this.convertProxy(proxy);
-            return convertedProxy ? this.getProxyName(convertedProxy) : null;
-        }).filter(Boolean);
-        
-        if (loadBalancerProxyNames.length === 0) {
-            return;
-        }
-        
-        // Create two types of load balance groups for Surge
-        this.config['proxy-groups'].push(
-            this.createProxyGroup(
-                '⚖️ 负载-顺序',
-                'load-balance',
-                this.sanitizeOptions(loadBalancerProxyNames),
-                ', strategy=round-robin, url=https://www.gstatic.com/generate_204, interval=300'
-            )
-        );
-        
-        this.config['proxy-groups'].push(
-            this.createProxyGroup(
-                '⚖️ 负载-主机',
-                'load-balance',
-                this.sanitizeOptions(loadBalancerProxyNames),
-                ', strategy=consistent-hashing, url=https://www.gstatic.com/generate_204, interval=300'
-            )
-        );
     }
 
     addFallBackGroup(proxyList) {
