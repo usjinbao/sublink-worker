@@ -10,9 +10,3 @@ kv_namespaces = [
 
 [assets]
 directory = "./public"
-
-# Password Protection (Optional)
-# Uncomment and set PASS variable in Cloudflare Dashboard to enable password protection
-# [vars]
-# PASS = "your-password-here"
-
