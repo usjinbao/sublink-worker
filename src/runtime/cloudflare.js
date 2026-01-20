@@ -5,6 +5,7 @@ export function createCloudflareRuntime(env) {
         kv: env?.SUBLINK_KV ? new CloudflareKVAdapter(env.SUBLINK_KV) : null,
         assetFetcher: env?.ASSETS ? (request) => env.ASSETS.fetch(request) : null,
         logger: console,
-        config: {}
+        config: {},
+        env: env // 保存 env 对象以便访问环境变量
     };
 }
