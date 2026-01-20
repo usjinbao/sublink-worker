@@ -58,7 +58,7 @@ export const Form = (props) => {
           </h3>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" x-model="enableLoadBalancer" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600" />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{t('enableLoadBalancer')}</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">启用负载均衡</span>
           </label>
         </div>
         
@@ -68,7 +68,6 @@ export const Form = (props) => {
           model="input"
           rows={5}
           placeholder={t('urlPlaceholder')}
-          required
           labelActionsWrapperClass="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           labelActions={[
             {
@@ -104,7 +103,7 @@ export const Form = (props) => {
           <TextareaWithActions
             id="loadBalancerInput"
             name="loadBalancerInput"
-            label={t('loadBalancerNodes')}
+            label="负载均衡节点"
             labelPrefix={
               <span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <i class="fas fa-random text-sm"></i>
@@ -112,7 +111,7 @@ export const Form = (props) => {
             }
             model="loadBalancerInput"
             rows={3}
-            placeholder={t('loadBalancerNodesPlaceholder')}
+            placeholder="请输入需要负载均衡的节点链接..."
             labelActionsWrapperClass="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             labelActions={[
               {

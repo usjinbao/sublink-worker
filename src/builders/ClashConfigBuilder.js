@@ -548,11 +548,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             return;
         }
         
-        const loadBalancerGroupName = this.t('outboundNames.Load Balance');
-        if (this.hasProxyGroup(loadBalancerGroupName)) {
-            return;
-        }
-        
         // Convert load balancer proxies to Clash format
         const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
             const convertedProxy = this.convertProxy(proxy);
@@ -563,24 +558,38 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             return;
         }
         
-        // Create load balance group
-        const loadBalanceGroup = {
-            name: loadBalancerGroupName,
-            type: 'load-balance',
-            proxies: loadBalancerProxyNames,
-            url: 'https://www.gstatic.com/generate_204',
-            interval: 300,
-            lazy: false,
-            strategy: 'round-robin' // 默认使用轮询策略
-        };
-        
         // Add 'use' field if we have proxy-providers
         const providerNames = this.getAllProviderNames();
-        if (providerNames.length > 0) {
-            loadBalanceGroup.use = providerNames;
-        }
+        const useProviders = providerNames.length > 0 ? { use: providerNames } : {};
         
-        this.config['proxy-groups'].push(loadBalanceGroup);
+        // Create two types of load balance groups
+        const loadBalanceGroups = [
+            {
+                name: '⚖️ 负载-顺序',
+                type: 'load-balance',
+                proxies: loadBalancerProxyNames,
+                url: 'https://www.gstatic.com/generate_204',
+                interval: 300,
+                lazy: false,
+                strategy: 'round-robin',
+                ...useProviders
+            },
+            {
+                name: '⚖️ 负载-主机',
+                type: 'load-balance',
+                proxies: loadBalancerProxyNames,
+                url: 'https://www.gstatic.com/generate_204',
+                interval: 300,
+                lazy: false,
+                strategy: 'consistent-hashing',
+                ...useProviders
+            }
+        ];
+        
+        // Add load balance groups to config
+        loadBalanceGroups.forEach(group => {
+            this.config['proxy-groups'].push(group);
+        });
     }
     
     // 生成规则

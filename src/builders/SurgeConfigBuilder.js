@@ -304,11 +304,6 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             return;
         }
         
-        const loadBalancerGroupName = this.t('outboundNames.Load Balance');
-        if (this.hasProxyGroup(loadBalancerGroupName)) {
-            return;
-        }
-        
         // Convert load balancer proxies to Surge format
         const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
             const convertedProxy = this.convertProxy(proxy);
@@ -319,14 +314,22 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             return;
         }
         
-        // Create load balance group for Surge
-        // Surge uses 'load-balance' type for load balancing
+        // Create two types of load balance groups for Surge
         this.config['proxy-groups'].push(
             this.createProxyGroup(
-                loadBalancerGroupName,
+                '⚖️ 负载-顺序',
                 'load-balance',
                 this.sanitizeOptions(loadBalancerProxyNames),
                 ', strategy=round-robin, url=https://www.gstatic.com/generate_204, interval=300'
+            )
+        );
+        
+        this.config['proxy-groups'].push(
+            this.createProxyGroup(
+                '⚖️ 负载-主机',
+                'load-balance',
+                this.sanitizeOptions(loadBalancerProxyNames),
+                ', strategy=consistent-hashing, url=https://www.gstatic.com/generate_204, interval=300'
             )
         );
     }

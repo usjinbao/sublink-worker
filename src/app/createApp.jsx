@@ -82,6 +82,7 @@ export function createApp(bindings = {}) {
             const enableClashUI = parseBooleanFlag(c.req.query('enable_clash_ui'));
             const externalController = c.req.query('external_controller');
             const externalUiDownloadUrl = c.req.query('external_ui_download_url');
+            // 解析负载均衡参数
             const enableLoadBalancer = parseBooleanFlag(c.req.query('enable_load_balancer'));
             const loadBalancerConfig = c.req.query('load_balancer_config') || '';
             const configId = c.req.query('configId');
