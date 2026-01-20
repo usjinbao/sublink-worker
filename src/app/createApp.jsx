@@ -29,54 +29,72 @@ export function createApp(bindings = {}) {
 
     const app = new Hono();
 
+    // Password protection middleware
+    app.use('*', async (c, next) => {
+        let pass = null;
+        
+        // Get password from multiple sources for different environments
+        // 1. Check process.env for Node.js environments
+        if (process.env) {
+            pass = process.env.PASS || process.env.pass;
+        }
+        
+        // 2. Check bindings parameter (passed during app creation)
+        if (!pass && bindings) {
+            pass = bindings.PASS || bindings.pass;
+        }
+        
+        // 3. Check Cloudflare Workers env via Hono context (c.env)
+        if (!pass && c.env) {
+            pass = c.env.PASS || c.env.pass;
+        }
+        
+        // 4. Check Cloudflare Workers env via request context
+        if (!pass && c.req.env) {
+            pass = c.req.env.PASS || c.req.env.pass;
+        }
+        
+        const path = c.req.path;
+        
+        // Skip password check for subscription endpoints and assets
+        const isSubscriptionEndpoint = [
+            '/singbox', '/clash', '/surge', '/xray',
+            '/s/', '/b/', '/c/', '/x/',
+            '/shorten-v2', '/config', '/resolve',
+            '/favicon.ico'
+        ].some(endpoint => 
+            path === endpoint || (endpoint.endsWith('/') && path.startsWith(endpoint))
+        );
+        
+        if (!isSubscriptionEndpoint && pass) {
+            // Check if password is provided in query string or basic auth
+            const queryPass = c.req.query('pass');
+            const authHeader = getRequestHeader(c.req, 'Authorization');
+            
+            let authPass = null;
+            if (authHeader && authHeader.startsWith('Basic ')) {
+                const base64Credentials = authHeader.slice('Basic '.length);
+                const credentials = atob(base64Credentials);
+                const [, password] = credentials.split(':');
+                authPass = password;
+            }
+            
+            if (queryPass !== pass && authPass !== pass) {
+                // Request password via basic auth
+                c.header('WWW-Authenticate', 'Basic realm="Sublink Worker"');
+                return c.text('Authentication required', 401);
+            }
+        }
+        
+        await next();
+    });
+
     app.use('*', async (c, next) => {
         const acceptLanguage = getRequestHeader(c.req, 'Accept-Language');
         const lang = c.req.query('lang') || acceptLanguage?.split(',')[0] || 'zh-CN';
         c.set('lang', lang);
         c.set('t', createTranslator(lang));
         await next();
-    });
-
-    // 密码验证中间件，只对根路径应用
-    app.use('/', async (c, next) => {
-        // 获取密码配置
-        const password = runtime.config.password;
-        
-        // 如果没有设置密码，直接通过
-        if (!password) {
-            return await next();
-        }
-        
-        // 获取 Authorization 头
-        const authHeader = c.req.header('Authorization');
-        
-        // 验证 Authorization 头
-        if (!authHeader) {
-            // 返回 401 和 WWW-Authenticate 头，触发浏览器密码提示
-            return c.text('Authentication required', 401, {
-                'WWW-Authenticate': 'Basic realm="Sublink Worker", charset="UTF-8"'
-            });
-        }
-        
-        // 解析 Authorization 头
-        const [authType, authValue] = authHeader.split(' ');
-        if (authType !== 'Basic') {
-            return c.text('Invalid authentication type', 401);
-        }
-        
-        // 解码 Base64 编码的用户名和密码
-        const decoded = atob(authValue);
-        const [username, providedPassword] = decoded.split(':');
-        
-        // 验证密码
-        if (providedPassword !== password) {
-            return c.text('Invalid password', 401, {
-                'WWW-Authenticate': 'Basic realm="Sublink Worker", charset="UTF-8"'
-            });
-        }
-        
-        // 验证通过，继续处理请求
-        return await next();
     });
 
     app.get('/', (c) => {
