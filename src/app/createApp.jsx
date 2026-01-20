@@ -112,7 +112,9 @@ export function createApp(bindings = {}) {
                 enableClashUI,
                 externalController,
                 externalUiDownloadUrl,
-                singboxConfigVersion
+                singboxConfigVersion,
+                enableLoadBalancer,
+                loadBalancerConfig
             );
             await builder.build();
             return c.json(builder.config);
