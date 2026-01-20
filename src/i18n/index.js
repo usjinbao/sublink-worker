@@ -152,6 +152,14 @@ export const translations = {
     validJSON: '有效的JSON',
     rules: '条规则',
     rule: '规则',
+    // Password Auth
+    passwordRequired: '需要密码',
+    passwordPrompt: '请输入访问密码以继续',
+    password: '密码',
+    enterPassword: '请输入密码',
+    passwordIncorrect: '密码错误,请重试',
+    passwordNote: '此页面受密码保护',
+    submit: '提交',
     // UpdateChecker
     newVersionAvailable: '发现新版本',
     viewRelease: '查看更新',
@@ -306,6 +314,14 @@ export const translations = {
     validJSON: 'Valid JSON',
     rules: 'rules',
     rule: 'Rule',
+    // Password Auth
+    passwordRequired: 'Password Required',
+    passwordPrompt: 'Please enter the password to continue',
+    password: 'Password',
+    enterPassword: 'Enter password',
+    passwordIncorrect: 'Incorrect password, please try again',
+    passwordNote: 'This page is password protected',
+    submit: 'Submit',
     // UpdateChecker
     newVersionAvailable: 'New Version Available',
     viewRelease: 'View Release',
@@ -454,6 +470,14 @@ export const translations = {
     validJSON: 'JSON معتبر',
     rules: 'قوانین',
     rule: 'قانون',
+    // Password Auth
+    passwordRequired: 'رمز عبور مورد نیاز است',
+    passwordPrompt: 'لطفاً رمز عبور را برای ادامه وارد کنید',
+    password: 'رمز عبور',
+    enterPassword: 'رمز عبور را وارد کنید',
+    passwordIncorrect: 'رمز عبور نادرست است، لطفاً دوباره امتحان کنید',
+    passwordNote: 'این صفحه با رمز عبور محافظت شده است',
+    submit: 'ارسال',
     // UpdateChecker
     newVersionAvailable: 'نسخه جدید موجود است',
     viewRelease: 'مشاهده انتشار',
@@ -602,6 +626,14 @@ export const translations = {
     validJSON: 'Действительный JSON',
     rules: 'правила',
     rule: 'Правило',
+    // Password Auth
+    passwordRequired: 'Требуется пароль',
+    passwordPrompt: 'Пожалуйста, введите пароль для продолжения',
+    password: 'Пароль',
+    enterPassword: 'Введите пароль',
+    passwordIncorrect: 'Неверный пароль, попробуйте еще раз',
+    passwordNote: 'Эта страница защищена паролем',
+    submit: 'Отправить',
     // UpdateChecker
     newVersionAvailable: 'Доступна новая версия',
     viewRelease: 'Посмотреть релиз',

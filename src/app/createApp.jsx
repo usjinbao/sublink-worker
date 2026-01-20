@@ -6,6 +6,7 @@ import { Navbar } from '../components/Navbar.jsx';
 import { Form } from '../components/Form.jsx';
 import { Footer } from '../components/Footer.jsx';
 import { UpdateChecker } from '../components/UpdateChecker.jsx';
+import { PasswordAuth } from '../components/PasswordAuth.jsx';
 import { SingboxConfigBuilder } from '../builders/SingboxConfigBuilder.js';
 import { ClashConfigBuilder } from '../builders/ClashConfigBuilder.js';
 import { SurgeConfigBuilder } from '../builders/SurgeConfigBuilder.js';
@@ -29,131 +30,6 @@ export function createApp(bindings = {}) {
 
     const app = new Hono();
 
-    // Password protection middleware
-    app.use('*', async (c, next) => {
-        // Get password from runtime config or environment variables
-        let pass = null;
-        
-        // Check if PASS is configured in bindings (Cloudflare Workers/Vercel)
-        if (bindings && typeof bindings === 'object') {
-            pass = bindings.PASS || bindings.pass;
-        }
-        
-        // Check if PASS is configured in request env (Hono Cloudflare Workers)
-        if (!pass && c.req?.env) {
-            pass = c.req.env.PASS || c.req.env.pass;
-        }
-        
-        const path = c.req.path;
-        
-        // Skip password check for subscription endpoints and assets
-        const isSubscriptionEndpoint = [
-            '/singbox', '/clash', '/surge', '/xray',
-            '/s/', '/b/', '/c/', '/x/',
-            '/shorten-v2', '/config', '/resolve',
-            '/favicon.ico'
-        ].some(endpoint => 
-            path === endpoint || (endpoint.endsWith('/') && path.startsWith(endpoint))
-        );
-        
-        if (!isSubscriptionEndpoint && pass) {
-            // Check if password is provided in query string
-            const queryPass = c.req.query('pass');
-            
-            // Check if password is provided in session cookie
-            const sessionCookie = c.req.header('Cookie')?.split('; ').find(cookie => cookie.startsWith('sublink_pass='));
-            const cookiePass = sessionCookie ? decodeURIComponent(sessionCookie.split('=')[1]) : null;
-            
-            // Check if password is provided in basic auth header
-            const authHeader = c.req.header('Authorization');
-            let basicAuthPass = null;
-            if (authHeader && authHeader.startsWith('Basic ')) {
-                try {
-                    const base64Credentials = authHeader.slice('Basic '.length);
-                    const credentials = atob(base64Credentials);
-                    const [, password] = credentials.split(':');
-                    basicAuthPass = password;
-                } catch (e) {
-                    // Invalid basic auth header, ignore
-                }
-            }
-            
-            // Check if password is provided in form submission
-            let formPass = null;
-            if (c.req.method === 'POST' && path === '/') {
-                try {
-                    const formData = await c.req.formData();
-                    formPass = formData.get('pass');
-                } catch (e) {
-                    // Not a form submission, ignore
-                }
-            }
-            
-            // Validate password
-            if (queryPass === pass || cookiePass === pass || basicAuthPass === pass || formPass === pass) {
-                // Set session cookie if password is valid
-                if (formPass === pass) {
-                    c.header('Set-Cookie', `sublink_pass=${encodeURIComponent(pass)}; Path=/; Max-Age=86400`);
-                }
-                await next();
-            } else {
-                // If it's a POST request, redirect back with error
-                if (c.req.method === 'POST' && path === '/') {
-                    return c.redirect('/?error=invalid_password');
-                }
-                
-                // Otherwise, show password form
-                const t = createTranslator('zh-CN');
-                const errorMessage = c.req.query('error') === 'invalid_password' ? `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        密码错误，请重试
-                    </div>
-                ` : '';
-                
-                const html = `
-                    <!DOCTYPE html>
-                    <html lang="zh-CN">
-                    <head>
-                        <title>${t('pageTitle')}</title>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css">
-                    </head>
-                    <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-                        <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-                            <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">${APP_NAME}</h1>
-                            ${errorMessage}
-                            <form method="POST" class="space-y-4">
-                                <div>
-                                    <label for="pass" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
-                                    <input 
-                                        type="password" 
-                                        id="pass" 
-                                        name="pass" 
-                                        required 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="请输入访问密码"
-                                    >
-                                </div>
-                                <button 
-                                    type="submit" 
-                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-                                >
-                                    登录
-                                </button>
-                            </form>
-                        </div>
-                    </body>
-                    </html>
-                `;
-                
-                return c.html(html);
-            }
-        } else {
-            await next();
-        }
-    });
-
     app.use('*', async (c, next) => {
         const acceptLanguage = getRequestHeader(c.req, 'Accept-Language');
         const lang = c.req.query('lang') || acceptLanguage?.split(',')[0] || 'zh-CN';
@@ -166,6 +42,23 @@ export function createApp(bindings = {}) {
         const t = c.get('t');
         const lang = resolveLanguage(c.get('lang'));
         const subtitle = APP_SUBTITLE[lang] || APP_SUBTITLE['zh-CN'];
+
+        // Check if password protection is enabled
+        const requiredPassword = runtime.env?.PASS;
+        if (requiredPassword) {
+            // Check if user is authenticated via cookie
+            const authCookie = c.req.header('Cookie');
+            const isAuthenticated = authCookie?.includes('auth=true');
+
+            if (!isAuthenticated) {
+                // Show password authentication page
+                return c.html(
+                    <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
+                        <PasswordAuth t={t} />
+                    </Layout>
+                );
+            }
+        }
 
         return c.html(
             <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
@@ -191,6 +84,36 @@ export function createApp(bindings = {}) {
                 </div>
             </Layout>
         );
+    });
+
+    app.post('/auth', async (c) => {
+        try {
+            const t = c.get('t');
+            const requiredPassword = runtime.env?.PASS;
+
+            if (!requiredPassword) {
+                // No password protection enabled, redirect to home
+                return c.redirect('/');
+            }
+
+            const formData = await c.req.parseBody();
+            const password = formData.password;
+
+            if (password === requiredPassword) {
+                // Password correct, set authentication cookie and redirect
+                c.header('Set-Cookie', 'auth=true; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400');
+                return c.redirect('/');
+            } else {
+                // Password incorrect, show error
+                return c.html(
+                    <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
+                        <PasswordAuth t={t} error={true} />
+                    </Layout>
+                );
+            }
+        } catch (error) {
+            return handleError(c, error, runtime.logger);
+        }
     });
 
     app.get('/singbox', async (c) => {
