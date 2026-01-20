@@ -29,169 +29,54 @@ export function createApp(bindings = {}) {
 
     const app = new Hono();
 
-    // 密码验证中间件
-    app.use('*', async (c, next) => {
-        const password = bindings.PASS || bindings.pass;
-        // 如果没有设置密码，直接放行
-        if (!password) {
-            await next();
-            return;
-        }
-
-        // 检查是否已经登录（通过cookie）
-        const authCookie = c.req.cookie('auth');
-        if (authCookie === password) {
-            await next();
-            return;
-        }
-
-        // 检查是否是登录请求
-        if (c.req.method === 'POST' && c.req.path === '/login') {
-            const body = await c.req.parseBody();
-            if (body.password === password) {
-                // 设置cookie，有效期30天
-                c.header('Set-Cookie', `auth=${password}; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax`);
-                return c.redirect('/');
-            } else {
-                // 密码错误，显示登录页面
-                return c.text(`
-                    <html>
-                        <head>
-                            <title>密码验证</title>
-                            <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    background-color: #f0f0f0;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    height: 100vh;
-                                    margin: 0;
-                                }
-                                .login-container {
-                                    background-color: white;
-                                    padding: 2rem;
-                                    border-radius: 8px;
-                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                                    width: 300px;
-                                }
-                                h1 {
-                                    text-align: center;
-                                    color: #333;
-                                }
-                                .error {
-                                    color: red;
-                                    margin-bottom: 1rem;
-                                    text-align: center;
-                                }
-                                form {
-                                    display: flex;
-                                    flex-direction: column;
-                                }
-                                input {
-                                    margin: 0.5rem 0;
-                                    padding: 0.75rem;
-                                    border: 1px solid #ddd;
-                                    border-radius: 4px;
-                                }
-                                button {
-                                    background-color: #007bff;
-                                    color: white;
-                                    border: none;
-                                    padding: 0.75rem;
-                                    border-radius: 4px;
-                                    cursor: pointer;
-                                    margin-top: 1rem;
-                                }
-                                button:hover {
-                                    background-color: #0056b3;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="login-container">
-                                <h1>请输入密码</h1>
-                                <div class="error">密码错误，请重试</div>
-                                <form method="POST" action="/login">
-                                    <input type="password" name="password" placeholder="密码" required />
-                                    <button type="submit">登录</button>
-                                </form>
-                            </div>
-                        </body>
-                    </html>
-                `);
-            }
-        }
-
-        // 显示登录页面
-        return c.text(`
-            <html>
-                <head>
-                    <title>密码验证</title>
-                    <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            background-color: #f0f0f0;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
-                            margin: 0;
-                        }
-                        .login-container {
-                            background-color: white;
-                            padding: 2rem;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                            width: 300px;
-                        }
-                        h1 {
-                            text-align: center;
-                            color: #333;
-                        }
-                        form {
-                            display: flex;
-                            flex-direction: column;
-                        }
-                        input {
-                            margin: 0.5rem 0;
-                            padding: 0.75rem;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                        }
-                        button {
-                            background-color: #007bff;
-                            color: white;
-                            border: none;
-                            padding: 0.75rem;
-                            border-radius: 4px;
-                            cursor: pointer;
-                            margin-top: 1rem;
-                        }
-                        button:hover {
-                            background-color: #0056b3;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="login-container">
-                        <h1>请输入密码</h1>
-                        <form method="POST" action="/login">
-                            <input type="password" name="password" placeholder="密码" required />
-                            <button type="submit">登录</button>
-                        </form>
-                    </div>
-                </body>
-            </html>
-        `);
-    });
-
     app.use('*', async (c, next) => {
         const acceptLanguage = getRequestHeader(c.req, 'Accept-Language');
         const lang = c.req.query('lang') || acceptLanguage?.split(',')[0] || 'zh-CN';
         c.set('lang', lang);
         c.set('t', createTranslator(lang));
         await next();
+    });
+
+    // 密码验证中间件，只对根路径应用
+    app.use('/', async (c, next) => {
+        // 获取密码配置
+        const password = runtime.config.password;
+        
+        // 如果没有设置密码，直接通过
+        if (!password) {
+            return await next();
+        }
+        
+        // 获取 Authorization 头
+        const authHeader = c.req.header('Authorization');
+        
+        // 验证 Authorization 头
+        if (!authHeader) {
+            // 返回 401 和 WWW-Authenticate 头，触发浏览器密码提示
+            return c.text('Authentication required', 401, {
+                'WWW-Authenticate': 'Basic realm="Sublink Worker", charset="UTF-8"'
+            });
+        }
+        
+        // 解析 Authorization 头
+        const [authType, authValue] = authHeader.split(' ');
+        if (authType !== 'Basic') {
+            return c.text('Invalid authentication type', 401);
+        }
+        
+        // 解码 Base64 编码的用户名和密码
+        const decoded = atob(authValue);
+        const [username, providedPassword] = decoded.split(':');
+        
+        // 验证密码
+        if (providedPassword !== password) {
+            return c.text('Invalid password', 401, {
+                'WWW-Authenticate': 'Basic realm="Sublink Worker", charset="UTF-8"'
+            });
+        }
+        
+        // 验证通过，继续处理请求
+        return await next();
     });
 
     app.get('/', (c) => {
