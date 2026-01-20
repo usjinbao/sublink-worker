@@ -31,59 +31,57 @@ export function createApp(bindings = {}) {
 
     // Password protection middleware
     app.use('*', async (c, next) => {
-        let pass = null;
-        
-        // Get password from multiple sources for different environments
-        // 1. Check process.env for Node.js environments
-        if (process.env) {
-            pass = process.env.PASS || process.env.pass;
-        }
-        
-        // 2. Check bindings parameter (passed during app creation)
-        if (!pass && bindings) {
-            pass = bindings.PASS || bindings.pass;
-        }
-        
-        // 3. Check Cloudflare Workers env via Hono context (c.env)
-        if (!pass && c.env) {
-            pass = c.env.PASS || c.env.pass;
-        }
-        
-        // 4. Check Cloudflare Workers env via request context
-        if (!pass && c.req.env) {
-            pass = c.req.env.PASS || c.req.env.pass;
-        }
-        
-        const path = c.req.path;
-        
-        // Skip password check for subscription endpoints and assets
-        const isSubscriptionEndpoint = [
-            '/singbox', '/clash', '/surge', '/xray',
-            '/s/', '/b/', '/c/', '/x/',
-            '/shorten-v2', '/config', '/resolve',
-            '/favicon.ico'
-        ].some(endpoint => 
-            path === endpoint || (endpoint.endsWith('/') && path.startsWith(endpoint))
-        );
-        
-        if (!isSubscriptionEndpoint && pass) {
-            // Check if password is provided in query string or basic auth
-            const queryPass = c.req.query('pass');
-            const authHeader = getRequestHeader(c.req, 'Authorization');
+        try {
+            let pass = null;
             
-            let authPass = null;
-            if (authHeader && authHeader.startsWith('Basic ')) {
-                const base64Credentials = authHeader.slice('Basic '.length);
-                const credentials = atob(base64Credentials);
-                const [, password] = credentials.split(':');
-                authPass = password;
+            // Get password from bindings parameter (passed during app creation)
+            if (bindings) {
+                pass = bindings.PASS || bindings.pass;
             }
             
-            if (queryPass !== pass && authPass !== pass) {
-                // Request password via basic auth
-                c.header('WWW-Authenticate', 'Basic realm="Sublink Worker"');
-                return c.text('Authentication required', 401);
+            // Get password from request env (Cloudflare Workers)
+            if (!pass && c.req?.env) {
+                pass = c.req.env.PASS || c.req.env.pass;
             }
+            
+            const path = c.req.path;
+            
+            // Skip password check for subscription endpoints and assets
+            const isSubscriptionEndpoint = [
+                '/singbox', '/clash', '/surge', '/xray',
+                '/s/', '/b/', '/c/', '/x/',
+                '/shorten-v2', '/config', '/resolve',
+                '/favicon.ico'
+            ].some(endpoint => 
+                path === endpoint || (endpoint.endsWith('/') && path.startsWith(endpoint))
+            );
+            
+            if (!isSubscriptionEndpoint && pass) {
+                // Check if password is provided in query string or basic auth
+                const queryPass = c.req.query('pass');
+                const authHeader = getRequestHeader(c.req, 'Authorization');
+                
+                let authPass = null;
+                if (authHeader && authHeader.startsWith('Basic ')) {
+                    try {
+                        const base64Credentials = authHeader.slice('Basic '.length);
+                        const credentials = atob(base64Credentials);
+                        const [, password] = credentials.split(':');
+                        authPass = password;
+                    } catch (e) {
+                        // Invalid basic auth header, ignore
+                    }
+                }
+                
+                if (queryPass !== pass && authPass !== pass) {
+                    // Request password via basic auth
+                    c.header('WWW-Authenticate', 'Basic realm="Sublink Worker"');
+                    return c.text('Authentication required', 401);
+                }
+            }
+        } catch (e) {
+            // Log error but continue to avoid breaking the app
+            console.error('Password protection middleware error:', e);
         }
         
         await next();
