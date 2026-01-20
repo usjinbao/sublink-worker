@@ -5,9 +5,9 @@ import { addProxyWithDedup } from './helpers/proxyHelpers.js';
 import { buildSelectorMembers, buildNodeSelectMembers, uniqueNames } from './helpers/groupBuilder.js';
 
 export class SurgeConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry) {
+    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry, enableClashUI = false, externalController = '', externalUiDownloadUrl = '', enableLoadBalancer = false, loadBalancerConfig = '') {
         const resolvedBaseConfig = baseConfig ?? SURGE_CONFIG;
-        super(inputString, resolvedBaseConfig, lang, userAgent, groupByCountry);
+        super(inputString, resolvedBaseConfig, lang, userAgent, groupByCountry, enableLoadBalancer, loadBalancerConfig);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
         this.subscriptionUrl = null;
@@ -296,6 +296,39 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
                 );
             });
         }
+    }
+
+    // 生成负载均衡组
+    addLoadBalancerGroup() {
+        if (!this.enableLoadBalancer || this.loadBalancerProxies.length === 0) {
+            return;
+        }
+        
+        const loadBalancerGroupName = this.t('outboundNames.Load Balance');
+        if (this.hasProxyGroup(loadBalancerGroupName)) {
+            return;
+        }
+        
+        // Convert load balancer proxies to Surge format
+        const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
+            const convertedProxy = this.convertProxy(proxy);
+            return convertedProxy ? this.getProxyName(convertedProxy) : null;
+        }).filter(Boolean);
+        
+        if (loadBalancerProxyNames.length === 0) {
+            return;
+        }
+        
+        // Create load balance group for Surge
+        // Surge uses 'load-balance' type for load balancing
+        this.config['proxy-groups'].push(
+            this.createProxyGroup(
+                loadBalancerGroupName,
+                'load-balance',
+                this.sanitizeOptions(loadBalancerProxyNames),
+                ', strategy=round-robin, url=https://www.gstatic.com/generate_204, interval=300'
+            )
+        );
     }
 
     addFallBackGroup(proxyList) {

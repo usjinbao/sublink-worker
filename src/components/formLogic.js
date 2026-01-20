@@ -4,6 +4,8 @@ export const formLogicFn = (t) => {
     window.formData = function () {
         return {
             input: '',
+            enableLoadBalancer: false,
+            loadBalancerInput: '',
             showAdvanced: false,
             // Accordion states for each section (二级手风琴状态)
             accordionSections: {
@@ -60,6 +62,8 @@ export const formLogicFn = (t) => {
 
                 // Load saved data
                 this.input = localStorage.getItem('inputTextarea') || '';
+                this.enableLoadBalancer = localStorage.getItem('enableLoadBalancer') === 'true';
+                this.loadBalancerInput = localStorage.getItem('loadBalancerInput') || '';
                 this.showAdvanced = localStorage.getItem('advancedToggle') === 'true';
                 this.groupByCountry = localStorage.getItem('groupByCountry') === 'true';
                 this.enableClashUI = localStorage.getItem('enableClashUI') === 'true';
@@ -90,6 +94,8 @@ export const formLogicFn = (t) => {
                     localStorage.setItem('inputTextarea', val);
                     this.handleInputChange(val);
                 });
+                this.$watch('enableLoadBalancer', val => localStorage.setItem('enableLoadBalancer', val));
+                this.$watch('loadBalancerInput', val => localStorage.setItem('loadBalancerInput', val));
                 this.$watch('showAdvanced', val => localStorage.setItem('advancedToggle', val));
                 this.$watch('groupByCountry', val => localStorage.setItem('groupByCountry', val));
                 this.$watch('enableClashUI', val => localStorage.setItem('enableClashUI', val));
@@ -257,6 +263,10 @@ export const formLogicFn = (t) => {
                     const origin = window.location.origin;
                     const params = new URLSearchParams();
                     params.append('config', this.input);
+                    if (this.enableLoadBalancer) {
+                        params.append('enable_load_balancer', 'true');
+                        params.append('load_balancer_config', this.loadBalancerInput);
+                    }
                     params.append('ua', this.customUA);
                     params.append('selectedRules', JSON.stringify(this.selectedRules));
                     params.append('customRules', JSON.stringify(customRules));

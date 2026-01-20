@@ -4,8 +4,10 @@ import { createTranslator } from '../i18n/index.js';
 import { generateRules, getOutbounds, PREDEFINED_RULE_SETS } from '../config/index.js';
 
 export class BaseConfigBuilder {
-    constructor(inputString, baseConfig, lang, userAgent, groupByCountry = false) {
+    constructor(inputString, baseConfig, lang, userAgent, groupByCountry = false, enableLoadBalancer = false, loadBalancerConfig = '') {
         this.inputString = inputString;
+        this.enableLoadBalancer = enableLoadBalancer;
+        this.loadBalancerConfig = loadBalancerConfig;
         this.config = deepCopy(baseConfig);
         this.customRules = [];
         this.selectedRules = [];
@@ -14,18 +16,30 @@ export class BaseConfigBuilder {
         this.appliedOverrideKeys = new Set();
         this.groupByCountry = groupByCountry;
         this.providerUrls = [];  // URLs to use as providers (auto-sync)
+        this.loadBalancerProxies = [];  // Store load balancer proxies separately
     }
 
     async build() {
         const customItems = await this.parseCustomItems();
         this.addCustomItems(customItems);
+        
+        // Parse load balancer items if enabled
+        if (this.enableLoadBalancer && this.loadBalancerConfig) {
+            const loadBalancerItems = await this.parseCustomItems(this.loadBalancerConfig);
+            // Store load balancer proxies separately
+            this.loadBalancerProxies = loadBalancerItems.filter(item => item?.tag);
+            // Add load balancer proxies to config
+            this.addCustomItems(this.loadBalancerProxies);
+        }
+        
         this.addSelectors();
         return this.formatConfig();
     }
 
-    async parseCustomItems() {
-        const input = this.inputString || '';
+    async parseCustomItems(inputString = null) {
+        const input = inputString || this.inputString || '';
         const parsedItems = [];
+        const isLoadBalancerInput = inputString !== null;
 
         // Import the content parser for direct input parsing
         const { parseSubscriptionContent } = await import('../parsers/subscription/subscriptionContentParser.js');
@@ -34,7 +48,7 @@ export class BaseConfigBuilder {
         const directResult = parseSubscriptionContent(input);
         if (directResult && typeof directResult === 'object' && directResult.type) {
             // It's a parsed config (singboxConfig or yamlConfig)
-            if (directResult.config) {
+            if (directResult.config && !isLoadBalancerInput) {
                 this.applyConfigOverrides(directResult.config);
             }
             if (Array.isArray(directResult.proxies)) {
@@ -56,7 +70,7 @@ export class BaseConfigBuilder {
                 if (typeof decodedWhole === 'string') {
                     const decodedResult = parseSubscriptionContent(decodedWhole);
                     if (decodedResult && typeof decodedResult === 'object' && decodedResult.type) {
-                        if (decodedResult.config) {
+                        if (decodedResult.config && !isLoadBalancerInput) {
                             this.applyConfigOverrides(decodedResult.config);
                         }
                         if (Array.isArray(decodedResult.proxies)) {
@@ -92,8 +106,8 @@ export class BaseConfigBuilder {
                         if (fetchResult) {
                             const { content, format, url: originalUrl } = fetchResult;
 
-                            // If format is compatible with target client, use as provider
-                            if (this.isCompatibleProviderFormat(format)) {
+                            // If format is compatible with target client and this is not load balancer input, use as provider
+                            if (this.isCompatibleProviderFormat(format) && !isLoadBalancerInput) {
                                 this.providerUrls.push(originalUrl);
                                 continue;  // Skip parsing, will be used as provider
                             }
@@ -101,7 +115,7 @@ export class BaseConfigBuilder {
                             // Otherwise parse the content as usual
                             const result = parseSubscriptionContent(content);
                             if (result && typeof result === 'object' && (result.type === 'yamlConfig' || result.type === 'singboxConfig' || result.type === 'surgeConfig')) {
-                                if (result.config) {
+                                if (result.config && !isLoadBalancerInput) {
                                     this.applyConfigOverrides(result.config);
                                 }
                                 if (Array.isArray(result.proxies)) {
@@ -137,7 +151,7 @@ export class BaseConfigBuilder {
                 const result = await ProxyParser.parse(processedUrl, this.userAgent);
                 // Handle yamlConfig, singboxConfig, and surgeConfig types (they have the same structure)
                 if (result && typeof result === 'object' && (result.type === 'yamlConfig' || result.type === 'singboxConfig' || result.type === 'surgeConfig')) {
-                    if (result.config) {
+                    if (result.config && !isLoadBalancerInput) {
                         this.applyConfigOverrides(result.config);
                     }
                     if (Array.isArray(result.proxies)) {
@@ -332,6 +346,12 @@ export class BaseConfigBuilder {
         }
         this.addOutboundGroups(outbounds, proxyList);
         this.addCustomRuleGroups(proxyList);
+        
+        // Add load balance group if enabled
+        if (typeof this.addLoadBalancerGroup === 'function') {
+            this.addLoadBalancerGroup();
+        }
+        
         this.addFallBackGroup(proxyList);
 
         // Merge user-defined proxy-groups after system groups are created

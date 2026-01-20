@@ -8,11 +8,11 @@ import { emitClashRules, sanitizeClashProxyGroups } from './helpers/clashConfigU
 import { normalizeGroupName, findGroupIndexByName } from './helpers/groupNameUtils.js';
 
 export class ClashConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry = false, enableClashUI = false, externalController, externalUiDownloadUrl) {
+    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry = false, enableClashUI = false, externalController, externalUiDownloadUrl, enableLoadBalancer = false, loadBalancerConfig = '') {
         if (!baseConfig) {
             baseConfig = CLASH_CONFIG;
         }
-        super(inputString, baseConfig, lang, userAgent, groupByCountry);
+        super(inputString, baseConfig, lang, userAgent, groupByCountry, enableLoadBalancer, loadBalancerConfig);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
         this.countryGroupNames = [];
@@ -542,6 +542,47 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         });
     }
 
+    // 生成负载均衡组
+    addLoadBalancerGroup() {
+        if (!this.enableLoadBalancer || this.loadBalancerProxies.length === 0) {
+            return;
+        }
+        
+        const loadBalancerGroupName = this.t('outboundNames.Load Balance');
+        if (this.hasProxyGroup(loadBalancerGroupName)) {
+            return;
+        }
+        
+        // Convert load balancer proxies to Clash format
+        const loadBalancerProxyNames = this.loadBalancerProxies.map(proxy => {
+            const convertedProxy = this.convertProxy(proxy);
+            return convertedProxy ? convertedProxy.name : null;
+        }).filter(Boolean);
+        
+        if (loadBalancerProxyNames.length === 0) {
+            return;
+        }
+        
+        // Create load balance group
+        const loadBalanceGroup = {
+            name: loadBalancerGroupName,
+            type: 'load-balance',
+            proxies: loadBalancerProxyNames,
+            url: 'https://www.gstatic.com/generate_204',
+            interval: 300,
+            lazy: false,
+            strategy: 'round-robin' // 默认使用轮询策略
+        };
+        
+        // Add 'use' field if we have proxy-providers
+        const providerNames = this.getAllProviderNames();
+        if (providerNames.length > 0) {
+            loadBalanceGroup.use = providerNames;
+        }
+        
+        this.config['proxy-groups'].push(loadBalanceGroup);
+    }
+    
     // 生成规则
     generateRules() {
         return generateRules(this.selectedRules, this.customRules);
@@ -563,6 +604,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                 ...this.generateProxyProviders()
             };
         }
+
+        // Add load balance group if enabled
+        this.addLoadBalancerGroup();
 
         // Validate proxy groups: fill empty url-test/fallback groups with all proxies
         this.validateProxyGroups();

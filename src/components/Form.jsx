@@ -49,15 +49,22 @@ export const Form = (props) => {
 
       {/* Input Section */}
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-md group">
-        <TextareaWithActions
-          id="input"
-          name="input"
-          label={t('shareUrls')}
-          labelPrefix={
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center">
               <i class="fas fa-link text-sm"></i>
             </span>
-          }
+            {t('shareUrls')}
+          </h3>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" x-model="enableLoadBalancer" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{t('enableLoadBalancer')}</span>
+          </label>
+        </div>
+        
+        <TextareaWithActions
+          id="input"
+          name="input"
           model="input"
           rows={5}
           placeholder={t('urlPlaceholder')}
@@ -91,6 +98,51 @@ export const Form = (props) => {
             }
           ]}
         />
+        
+        {/* Load Balancer Input */}
+        <div x-show="enableLoadBalancer" class="mt-6">
+          <TextareaWithActions
+            id="loadBalancerInput"
+            name="loadBalancerInput"
+            label={t('loadBalancerNodes')}
+            labelPrefix={
+              <span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <i class="fas fa-random text-sm"></i>
+              </span>
+            }
+            model="loadBalancerInput"
+            rows={3}
+            placeholder={t('loadBalancerNodesPlaceholder')}
+            labelActionsWrapperClass="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            labelActions={[
+              {
+                key: 'paste-lb',
+                icon: 'fas fa-paste',
+                label: t('paste'),
+                hideLabelOnMobile: true,
+                className:
+                  'px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1',
+                title: t('paste'),
+                attrs: {
+                  'x-on:click': "navigator.clipboard.readText().then(text => loadBalancerInput = text).catch(() => {})"
+                }
+              },
+              {
+                key: 'clear-lb',
+                icon: 'fas fa-times',
+                label: t('clear'),
+                hideLabelOnMobile: true,
+                className:
+                  'px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center gap-1',
+                title: t('clear'),
+                attrs: {
+                  'x-on:click': "loadBalancerInput = ''",
+                  'x-show': 'loadBalancerInput'
+                }
+              }
+            ]}
+          />
+        </div>
       </div>
 
       {/* Advanced Options Toggle */}

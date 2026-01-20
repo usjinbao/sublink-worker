@@ -29,7 +29,7 @@ export const UNIFIED_RULES = [
 	{
 		name: 'Google',
 		site_rules: ['google'],
-		ip_rules: ['google']
+		ip_rules: []
 	},
 	{
 		name: 'Private',
