@@ -6,6 +6,7 @@ import { Navbar } from '../components/Navbar.jsx';
 import { Form } from '../components/Form.jsx';
 import { Footer } from '../components/Footer.jsx';
 import { UpdateChecker } from '../components/UpdateChecker.jsx';
+import { PasswordAuth } from '../components/PasswordAuth.jsx';
 import { SingboxConfigBuilder } from '../builders/SingboxConfigBuilder.js';
 import { ClashConfigBuilder } from '../builders/ClashConfigBuilder.js';
 import { SurgeConfigBuilder } from '../builders/SurgeConfigBuilder.js';
@@ -42,6 +43,23 @@ export function createApp(bindings = {}) {
         const lang = resolveLanguage(c.get('lang'));
         const subtitle = APP_SUBTITLE[lang] || APP_SUBTITLE['zh-CN'];
 
+        // Check if password protection is enabled
+        const requiredPassword = runtime.config.password;
+        if (requiredPassword) {
+            // Check if user is authenticated via cookie
+            const authCookie = c.req.header('Cookie');
+            const isAuthenticated = authCookie?.includes('auth=true');
+
+            if (!isAuthenticated) {
+                // Show password authentication page
+                return c.html(
+                    <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
+                        <PasswordAuth t={t} />
+                    </Layout>
+                );
+            }
+        }
+
         return c.html(
             <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
                 <div class="flex flex-col min-h-screen">
@@ -66,6 +84,36 @@ export function createApp(bindings = {}) {
                 </div>
             </Layout>
         );
+    });
+
+    app.post('/auth', async (c) => {
+        try {
+            const t = c.get('t');
+            const requiredPassword = runtime.config.password;
+
+            if (!requiredPassword) {
+                // No password protection enabled, redirect to home
+                return c.redirect('/');
+            }
+
+            const formData = await c.req.parseBody();
+            const password = formData.password;
+
+            if (password === requiredPassword) {
+                // Password correct, set authentication cookie and redirect
+                c.header('Set-Cookie', 'auth=true; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400');
+                return c.redirect('/');
+            } else {
+                // Password incorrect, show error
+                return c.html(
+                    <Layout title={t('pageTitle')} description={t('pageDescription')} keywords={t('pageKeywords')}>
+                        <PasswordAuth t={t} error={true} />
+                    </Layout>
+                );
+            }
+        } catch (error) {
+            return handleError(c, error, runtime.logger);
+        }
     });
 
     app.get('/singbox', async (c) => {
