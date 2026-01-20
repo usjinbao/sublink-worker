@@ -6,7 +6,8 @@ let honoApp;
 function getApp(env) {
     if (!honoApp) {
         const runtime = createCloudflareRuntime(env);
-        honoApp = createApp(runtime);
+        // 将env直接传递给createApp，以便访问环境变量
+        honoApp = createApp({ ...runtime, ...env });
     }
     return honoApp;
 }
